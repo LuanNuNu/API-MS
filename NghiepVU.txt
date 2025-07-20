@@ -1,0 +1,11 @@
+đẩy list sản phẩm về backend=> xem bao nhiêu loại => tạo đó chừng đó phiếu => sản phẩm loại nào đẩy vào chi tiết phiếu có mã kho loại đó
+ưu : truy xuất phiếu nhập thì biết luôn kho nhập  vào đó.
+nhược: xử lý khó ở đoạn tạo phiếu nhập
+
+
+Xưởng sản xuất sản xuất 1 lô sản phẩm và xuất vào kho tổng
+=> tạo 1 phiếu nhập có sản phẩm GIÁ NHẬP 
+ => đẩy dữ liệu vào bảng lịch sử giá => được giá nhập của 1 sản phẩm.
+Bộ phận kinh doanh làm việc với Quản lý kho để chốt xuất sản phẩm vào chi nhánh nào, GIÁ BÁN như nào 
+=> tạo 1 phiếu xuất có sản phẩm và GIÁ BÁN
+ => đẩy dữ liệu vào bảng lịch sử giá => được giá bán
