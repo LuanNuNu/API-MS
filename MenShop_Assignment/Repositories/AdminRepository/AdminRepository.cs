@@ -61,7 +61,7 @@ namespace MenShop_Assignment.Repositories.AdminRepository
                 BirthDate = model.BirthDate,
                 CreatedDate = DateTime.Now,
                 BranchId = model.BranchId,
-                EmployeeAddress = model.EmployeeAddress
+                WorkArea = model.WorkArea,
             };
 
             var createResult = await _userManager.CreateAsync(user, model.Password);
@@ -210,7 +210,7 @@ namespace MenShop_Assignment.Repositories.AdminRepository
                 return ApiResponse.NotFound($"Không tìm thấy người dùng với ID: {id}");
 
             UpdateBasicUserInfo(user, model);
-            user.EmployeeAddress = model.EmployeeAddress;
+            user.WorkArea= model.WorkArea;
             user.BranchId = model.BranchId;
 
             var updateResult = await _userManager.UpdateAsync(user);

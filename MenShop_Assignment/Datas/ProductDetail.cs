@@ -19,5 +19,6 @@
         public ICollection<CartDetail>? CartDetails { get; set; }
         public ICollection<OrderDetail>? OrderDetails { get; set; }
         public ICollection<OutputReceiptDetail>? OutputReceiptDetails { get; set; }
+        public ICollection<DiscountPriceDetail>? DiscountPriceDetails { get; set; }
     }
 }

@@ -5,10 +5,12 @@ namespace MenShop_Assignment.Repositories.OrderRepository
 {
 	public interface IOrderRepository
 	{
-		Task<bool> CancelOrderAsync(string orderId);
-		Task<bool> CompletedOrderStatus(string orderId);
-		Task<bool> CreateOrderAsync(CreateOrderDTO createProductDTO);
+        Task<ApiResponseModel<object>> CancelOrderAsync(string orderId, string reason);
+        Task<ApiResponseModel<object>> CompletedOrderStatus(string orderId);
+        Task<OrderResponseDTO> CreateOrderAsync(CreateOrderDTO createOrderDTO);
 		Task<List<OrderViewModel>> GetOrdersAsync(SearchOrderDTO? search);
-		Task<bool> ShipperAcceptOrderByOrderId(string orderId, string shipperId);
-	}
+        Task<List<OrderProductDetailViewModel>> GetOrderDetailsByOrderIdsAsync(string orderId);
+        Task<ApiResponseModel<object>> ShipperAcceptOrderByOrderId(string orderId, string shipperId);
+        Task<ApprovalResultDto> RestoreStockForCancelledOrderAsync(string orderId);
+    }
 }

@@ -9,9 +9,11 @@ namespace MenShop_Assignment.Models
 		public string? Description { get; set; }
 		public int? CategoryProductID { get; set; }
 		public string? CategoryName { get; set; }
+		public string? CollectionName { get; set; }
         public decimal? Price { get; set; }//
         public string? Status { get; set; }
 		public string? Thumbnail {  get; set; }
 		public ICollection<ProductDetailViewModel>? ProductDetails { get; set; }
+		public ICollection<CollectionDetailsViewModel>? CollectionDetails { get; set; }
 	}
 }

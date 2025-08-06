@@ -20,6 +20,31 @@ namespace MenShop_Assignment.Services.PaymentServices
             _momoServices = momoServices;
             _orderRepository = orderRepository;
         }
+
+        public async Task<PaymentViewModel?> GetPaymentByOrderIdAsync(string orderId)
+        {
+            var payment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.OrderId == orderId);
+
+            if (payment == null)
+            {
+                return null;
+            }
+
+            return PaymentMapper.ToPaymentViewModel(payment);
+        }
+        public async Task<PaymentViewModel?> GetPaymentByPaymentdAsync(string paymentId)
+        {
+            var payment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.PaymentId == paymentId);
+
+            if (payment == null)
+            {
+                return null;
+            }
+
+            return PaymentMapper.ToPaymentViewModel(payment);
+        }
         public async Task<PaymentViewModel> AddPaymentToOrderAsync(string orderId, CreatePaymentDTO dto)
         {
             var order = await _context.Orders
@@ -95,7 +120,9 @@ namespace MenShop_Assignment.Services.PaymentServices
 
         private async Task HandleOrderStatusAfterPayment(Order order, Payment payment, PaymentMethod method)
         {
-            var totalPaid = order.Payments.Sum(p => p.Amount);
+            var totalPaid = order.Payments
+                  .Where(p => p.Method != PaymentMethod.COD || p.Status == PaymentStatus.Completed)
+                  .Sum(p => p.Amount);
 
             if (totalPaid > order.Total)
                 throw new Exception("Tổng tiền thanh toán vượt quá số tiền đơn hàng.");
@@ -113,22 +140,19 @@ namespace MenShop_Assignment.Services.PaymentServices
             {
                 if (method == PaymentMethod.COD)
                 {
-                    _orderRepository.CompletedOrderStatus(order.OrderId);
-                    order.PaidDate = DateTime.Now;
+                    payment.Status = PaymentStatus.Pending;
+
                 }
                 else if (method == PaymentMethod.VNPay)
                 {
                     payment.Status = PaymentStatus.Completed;
                     payment.PaymentDate = DateTime.Now;
                     order.PaidDate = DateTime.Now;
+                    order.Status = OrderStatus.Paid;
                 }
 
             }
         }
-
-
-
-
     }
 
 }

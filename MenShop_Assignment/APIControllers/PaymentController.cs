@@ -2,6 +2,7 @@
 using MenShop_Assignment.Extensions;
 using MenShop_Assignment.Models.VNPay;
 using MenShop_Assignment.Repositories.OrderRepository;
+using MenShop_Assignment.Repositories.Product;
 using MenShop_Assignment.Services.Momo;
 using MenShop_Assignment.Services.PaymentServices;
 using MenShop_Assignment.Services.VNPay;
@@ -43,7 +44,25 @@ namespace MenShop_Assignment.APIControllers
                 return StatusCode(500, $"Lỗi server: {ex.Message}");
             }
         }
+        [HttpGet("by-order/{orderId}")]
+        public async Task<IActionResult> GetPaymentByOrderId(string orderId)
+        {
+            var result = await _paymentService.GetPaymentByOrderIdAsync(orderId);
+            if (result == null)
+                return NotFound();
 
+            return Ok(result);
+        }
+
+        [HttpGet("{paymentId}")]
+        public async Task<IActionResult> GetPaymentById(string paymentId)
+        {
+            var result = await _paymentService.GetPaymentByPaymentdAsync(paymentId);
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
+        }
         [HttpGet("momo-execute")]
         public IActionResult PaymentExecute()
         {
@@ -84,7 +103,7 @@ namespace MenShop_Assignment.APIControllers
 
 
 
-        [HttpPost("api/payments/{orderId}")]
+        [HttpPost("{orderId}")]
         public async Task<IActionResult> AddPaymentToOrder(string orderId, [FromBody] CreatePaymentDTO dto)
         {
             try

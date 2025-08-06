@@ -1,4 +1,5 @@
-﻿using MenShop_Assignment.Models.Account;
+﻿using MenShop_Assignment.Datas;
+using MenShop_Assignment.Models.Account;
 using System.ComponentModel.DataAnnotations;
 
 namespace MenShop_Assignment.Models.AccountModels
@@ -8,7 +9,7 @@ namespace MenShop_Assignment.Models.AccountModels
         public int? BranchId { get; set; }
 
         [StringLength(200)]
-        public string? EmployeeAddress { get; set; }
         public string? NewPassword { get; set; }
+        public AddressInfo? WorkArea { get; set; }
     }
 }

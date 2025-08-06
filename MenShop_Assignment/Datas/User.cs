@@ -14,7 +14,8 @@ namespace MenShop_Assignment.Datas
         public int? BranchId { get; set; }
         public Branch? WorkedBranch { get; set; }
         public Branch? ManagedBranch { get; set; }
-        public string? EmployeeAddress { get; set; }
+        //
+        public AddressInfo? WorkArea { get; set; }
         public string? ManagerId { get; set; }
         public User? Manager { get; set; }
         public Cart? CustomerCart { get; set; } 

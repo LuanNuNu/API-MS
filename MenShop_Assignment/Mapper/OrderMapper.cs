@@ -6,28 +6,35 @@ namespace MenShop_Assignment.Mapper
 {
     public static class OrderMapper
     {
+        //up1
         public static OrderViewModel ToOrderViewModel(Order order)
         {
             return new OrderViewModel
             {
                 OrderId = order.OrderId,
-                CustomerName = order.Customer?.UserName ?? null,
-                EmployeeName = order.Employee?.UserName ?? null,
-                ShipperName = order.Shipper?.UserName ?? null,
+                CustomerName = order.Customer?.FullName?? null,
+                EmployeeName = order.Employee?.FullName ?? null,
+                ShipperName = order.Shipper?.FullName ?? null,
+                ShipperId = order.Shipper?.Id,
+                BranchName = order.Branch?.Name ?? null,
                 CreatedDate = order.CreatedDate ?? null,
                 CompletedDate = order.CompletedDate ?? null,
                 PaidDate = order.PaidDate ?? null,
-                Status = order.Status.ToString() ?? null,
-				IsOnline = (order.IsOnline == true ? "Online" : "Offline") ?? null,
-                Total = order.Total ?? null,
-                Details = order.Details?.Select(ToOrderDetailViewModel).ToList() ?? [],
-                Payments = order.Payments?.Select(PaymentMapper.ToPaymentViewModel).ToList() ?? []
+                Status = order.Status,
+                IsOnline = (order.IsOnline == true ? "Online" : "Offline") ?? null,
+                Subtotal= order.Subtotal ?? null,
+                ShippingFee= order.ShippingFee ?? null,
+                Address = order.Address,
+                ReceiverName = order.ReceiverName ?? null,
+                ReceiverPhone = order.ReceiverPhone ?? null,
+                BranchId = order.BranchId ?? null,
+                CancellationReason = order.CancellationReason ?? null
             };
         }
-        public static ProductDetailViewModel ToOrderDetailViewModel(OrderDetail orderDetail)
+        public static OrderProductDetailViewModel ToOrderDetailViewModel(OrderDetail orderDetail, decimal? shippingFee)
         {
-            return new ProductDetailViewModel
-			{
+            return new OrderProductDetailViewModel
+            {
                 DetailId = orderDetail.ProductDetailId,
                 ProductName = orderDetail.ProductDetail?.Product?.ProductName ?? null,
                 SizeName = orderDetail.ProductDetail?.Size?.Name ?? null,
@@ -35,6 +42,7 @@ namespace MenShop_Assignment.Mapper
 				FabricName = orderDetail.ProductDetail?.Fabric?.Name ?? null,
                 Quantity = orderDetail.Quantity ?? null,
                 SellPrice = orderDetail.Price ?? null,
+                ShippingFee = shippingFee
             };
         }
     }

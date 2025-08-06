@@ -40,17 +40,18 @@ namespace MenShop_Assignment.APIControllers
 			return Ok(new ApiResponseModel<object>(true, "Tạo địa chỉ thành công", null, 201));
 		}
 
-		[HttpPut]
-		public async Task<IActionResult> Update([FromBody] CreateUpdateCustomerAddressDTO dto)
-		{
-			var success = await _addressRepo.UpdateAsync(dto);
-			if (!success)
-				return NotFound(new ApiResponseModel<object>(false, "Không tìm thấy địa chỉ để cập nhật", null, 404));
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] CreateUpdateCustomerAddressDTO dto)
+        {
+            var success = await _addressRepo.UpdateAsync(id, dto); 
+            if (!success)
+                return NotFound(new ApiResponseModel<object>(false, "Không tìm thấy địa chỉ để cập nhật", null, 404));
 
-			return Ok(new ApiResponseModel<object>(true, "Cập nhật địa chỉ thành công", null, 200));
-		}
+            return Ok(new ApiResponseModel<object>(true, "Cập nhật địa chỉ thành công", null, 200));
+        }
 
-		[HttpDelete("{id}")]
+
+        [HttpDelete("{id}")]
 		public async Task<IActionResult> Delete(int id)
 		{
 			var success = await _addressRepo.DeleteAsync(id);

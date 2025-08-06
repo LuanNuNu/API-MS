@@ -12,7 +12,8 @@ namespace MenShop_Assignment.Mapper
             {
                 BranchId = branch.BranchId,
                 Name = branch.Name,
-                Address = branch.Address ?? null,
+                Address = branch.Address,
+              
                 ManagerName = branch.Manager?.FullName ?? null,
                 IsOnline = branch.IsOnline,
                 BranchDetails = branch.BranchDetails?.Select(ToBranchDetailViewModel).ToList() ?? [],
@@ -33,14 +34,24 @@ namespace MenShop_Assignment.Mapper
             };
         }
 
-        public static Branch ToBranch(CreateUpdateBranchDTO branchDTO)
+        public static CreateUpdateBranchDTO ToDTO(Branch branch)
+        {
+            return new CreateUpdateBranchDTO
+            {
+                Address = branch.Address,
+                Name = branch.Name,
+                IsOnline = branch.IsOnline
+            };
+        }
+        public static Branch ToBranch(CreateUpdateBranchDTO dto)
         {
             return new Branch
             {
-                Address = branchDTO.Address ?? null,
-                Name = branchDTO.Name,
-                IsOnline = branchDTO.IsOnline
+                Address = dto.Address,
+                Name = dto.Name,
+                IsOnline = dto.IsOnline
             };
         }
+
     }
 }

@@ -21,6 +21,7 @@ namespace MenShop_Assignment.Datas
         public DbSet<Fabric> Fabrics { get; set; }
         public DbSet<HistoryPrice> HistoryPrices { get; set; }
         public DbSet<ImagesProduct> ImagesProducts { get; set; }
+        public DbSet<ImageCollection> ImageCollections { get; set; }
         public DbSet<InputReceipt> InputReceipts { get; set; }
         public DbSet<InputReceiptDetail> InputReceiptDetails { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -29,6 +30,8 @@ namespace MenShop_Assignment.Datas
         public DbSet<OutputReceiptDetail> OutputReceiptDetails { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductDetail> ProductDetails { get; set; }
+        public DbSet<Collection> Collections { get; set; }
+        public DbSet<CollectionDetail> CollectionDetails { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<PaymentDiscount> PaymentDiscounts { get; set; }
         public DbSet<Size> Sizes { get; set; }
@@ -36,7 +39,8 @@ namespace MenShop_Assignment.Datas
         public DbSet<StorageDetail> StorageDetails { get; set; }
         public DbSet<GHTKOrder> GHTKOrders { get; set; }
         public DbSet<GHTKProduct> GHTKProducts { get; set; }
-
+        public DbSet<DiscountPrice> DiscountPrices { get; set; }
+        public DbSet<DiscountPriceDetail> DiscountPriceDetails { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<IdentityRole>().HasData(
@@ -178,6 +182,33 @@ namespace MenShop_Assignment.Datas
                 .WithMany(pd => pd.Images)
                 .HasForeignKey(ip => ip.ProductDetailId);
 
+            modelBuilder.Entity<Collection>()
+                .HasMany(c => c.Images)
+                .WithOne(i => i.Collection)
+                .HasForeignKey(i => i.CollectionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Collection>()
+                .HasMany(c => c.CollectionDetails)
+                .WithOne(cd => cd.Collection)
+                .HasForeignKey(cd => cd.CollectionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<CollectionDetail>()
+                .HasOne(cd => cd.Collection)
+                .WithMany(c => c.CollectionDetails)
+                .HasForeignKey(cd => cd.CollectionId);
+
+            modelBuilder.Entity<CollectionDetail>()
+                .HasOne(cd => cd.Product)
+                .WithMany(p => p.CollectionDetails)
+                .HasForeignKey(cd => cd.ProductId);
+            modelBuilder.Entity<ImageCollection>()
+                .HasOne(img => img.Collection)
+                .WithMany(c => c.Images)
+                .HasForeignKey(img => img.CollectionId)
+                .IsRequired(false);
             // User - InputReceipt (Manager)
             modelBuilder.Entity<InputReceipt>()
                 .HasOne(ir => ir.Manager)
@@ -221,7 +252,10 @@ namespace MenShop_Assignment.Datas
                 .WithMany(u=>u.ShipperOrders)
                 .HasForeignKey(o => o.ShipperId)
                 .IsRequired(false);
-
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Branch)
+                .WithMany(b => b.Orders)
+                .HasForeignKey(o => o.BranchId);
             // Order - OrderDetail
             modelBuilder.Entity<OrderDetail>()
                 .HasOne(od => od.Order)
@@ -300,6 +334,14 @@ namespace MenShop_Assignment.Datas
                 .WithMany(u => u.Employees)
                 .HasForeignKey(u => u.ManagerId)
                 .IsRequired(false);
+            //
+            modelBuilder.Entity<User>()
+    .OwnsOne(u => u.WorkArea);
+
+            modelBuilder.Entity<Branch>()
+    .OwnsOne(b => b.Address);
+
+
         }
     }
 }

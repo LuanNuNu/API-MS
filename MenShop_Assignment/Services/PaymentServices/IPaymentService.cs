@@ -8,5 +8,7 @@ namespace MenShop_Assignment.Services.PaymentServices
     public interface IPaymentService
     {
         Task<PaymentViewModel> AddPaymentToOrderAsync(string orderId, CreatePaymentDTO dto);
+        Task<PaymentViewModel?> GetPaymentByPaymentdAsync(string paymentId);
+        Task<PaymentViewModel?> GetPaymentByOrderIdAsync(string orderId);
     }
 }

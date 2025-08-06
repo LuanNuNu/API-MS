@@ -40,4 +40,12 @@
     <Folder Include="StaticFiles\" />
 
   </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\MenShop\DuAnTotNghiep_FPTPoly-master\MenShop_Assignment\Repositories\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\MenShop\DuAnTotNghiep_FPTPoly-master\MenShop_Assignment\Repositories\.editorconfig" />
+  </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 ﻿using MenShop_Assignment.Datas;
+using MenShop_Assignment.Models.VNPay;
 
 namespace MenShop_Assignment.Models
 {
@@ -6,9 +7,11 @@ namespace MenShop_Assignment.Models
 	{
 		public int CartId { get; set; }
 		public string? CustomerName { get; set; }
-		public DateTime? CreatedDate { get; set; }
-		public ICollection<ProductDetailViewModel>? Details { get; set; }
-		public decimal? TotalAmount
+        public string? CustomerId { get; set; }
+        public DateTime? CreatedDate { get; set; }
+		//public ICollection<ProductDetailViewModel>? Details { get; set; }
+		public ICollection<CartDetailViewModel>? Details { get; set; }
+        public decimal? TotalAmount
 		{
 			get
 			{

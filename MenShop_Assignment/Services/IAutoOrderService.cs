@@ -3,8 +3,7 @@ namespace MenShop_Assignment.Services
 {
     public interface IAutoOrderService
     {
-        Task<ApprovalResultDto> ApproveOrderAsync(string orderId);
-        Task<BatchApprovalDto> ApproveAllOrdersAsync();
-        Task<PendingOrdersDto> GetPendingOrdersAsync();
+        Task<ApprovalResultDto> ApproveOfflineOrderAsync(string orderId);
+        Task<ApprovalResultDto> ApproveOnlineOrderAsync(string orderId);
     }
 }

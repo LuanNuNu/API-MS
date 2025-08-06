@@ -9,5 +9,6 @@
         public bool? Status { get; set; }
         public CategoryProduct? Category { get; set; }
         public ICollection<ProductDetail>? ProductDetails { get; set; }
+        public ICollection<CollectionDetail> CollectionDetails { get; set; }
     }
 }

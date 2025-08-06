@@ -16,51 +16,80 @@ namespace MenShop_Assignment.Repositories.CustomerAddressRepositories
 
         public async Task<List<CustomerAddressViewModel>?> GetAllAsync()
         {
-            var customerAddresses = await _context.CustomerAddresses.ToListAsync();
-            return customerAddresses.Select(CustomerAddressMapper.ToCustomerAddressViewModel).ToList() ?? [];
-        }
+            var customerAddresses = await _context.CustomerAddresses
+                .Include(ca => ca.Customer)
+                .ToListAsync();
 
+            return customerAddresses
+                .Select(CustomerAddressMapper.ToCustomerAddressViewModel)
+                .ToList();
+        }
 
         public async Task<List<CustomerAddressViewModel>?> GetByCustomerIdAsync(string customerId)
         {
             var customerAddresses = await _context.CustomerAddresses
+                .Include(ca => ca.Customer)
                 .Where(ca => ca.CustomerId == customerId)
                 .ToListAsync();
 
-			return customerAddresses.Select(CustomerAddressMapper.ToCustomerAddressViewModel).ToList() ?? [];
-		}
+            return customerAddresses
+                .Select(CustomerAddressMapper.ToCustomerAddressViewModel)
+                .ToList();
+        }
 
         public async Task<bool> CreateAsync(CreateUpdateCustomerAddressDTO dto)
         {
-            var user = await _context.Users.Where(x=>x.Id== dto.CustomerId).FirstOrDefaultAsync();
-            if (user == null)
-                return false;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.CustomerId);
+            if (user == null) return false;
 
-            await _context.CustomerAddresses.AddAsync(new CustomerAddress { CustomerId = dto.CustomerId, Address = dto.Address });
+            var address = new CustomerAddress
+            {
+                CustomerId = dto.CustomerId,
+                ProvinceId = dto.ProvinceId,
+                ProvinceName = dto.ProvinceName,
+                DistrictId = dto.DistrictId,
+                DistrictName = dto.DistrictName,
+                WardId = dto.WardId,
+                WardName = dto.WardName,
+                Street = dto.Street,
+                ReceiverName = dto.ReceiverName,
+                ReceiverPhone = dto.ReceiverPhone
+            };
+
+            await _context.CustomerAddresses.AddAsync(address);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> UpdateAsync(CreateUpdateCustomerAddressDTO dto)
+        public async Task<bool> UpdateAsync(int id, CreateUpdateCustomerAddressDTO dto)
         {
-            var address = await _context.CustomerAddresses.FirstOrDefaultAsync(cd => cd.Id == dto.Id);
-            if (address == null || dto.Id==0) 
-                return false;
+            var address = await _context.CustomerAddresses.FindAsync(id);
+            if (address == null) return false;
 
-            address.Address = dto.Address;
+            address.ProvinceId = dto.ProvinceId;
+            address.ProvinceName = dto.ProvinceName;
+            address.DistrictId = dto.DistrictId;
+            address.DistrictName = dto.DistrictName;
+            address.WardId = dto.WardId;
+            address.WardName = dto.WardName;
+            address.Street = dto.Street;
+            address.ReceiverName = dto.ReceiverName;
+            address.ReceiverPhone = dto.ReceiverPhone;
+
             await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var address = await _context.CustomerAddresses.FirstOrDefaultAsync(cd => cd.Id == id);
-            if (address == null)
-                return false;
+            var address = await _context.CustomerAddresses.FindAsync(id);
+            if (address == null) return false;
 
             _context.CustomerAddresses.Remove(address);
             await _context.SaveChangesAsync();
             return true;
         }
     }
+
+
 }

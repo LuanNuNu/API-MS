@@ -18,7 +18,7 @@ namespace MenShop_Assignment.Mapper
                 UserRole = roles.FirstOrDefault(), 
                 Gender = user.Gender?.ToString(), 
                 BirthDate = user.BirthDate,
-                WorkedBranch = user.EmployeeAddress, 
+                WorkArea = user.WorkArea,
                 ManagerName = user.ManagerId, 
                 CreatedDate = user.CreatedDate,
                 DisabledDate = user.DisabledDate,

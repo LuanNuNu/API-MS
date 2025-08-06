@@ -33,7 +33,7 @@ namespace MenShop_Assignment.Repositories
         public async Task<Branch?> CreateBranchAsync(CreateUpdateBranchDTO branchDTO)
         {
 
-            if (branchDTO == null||branchDTO.Address==null )
+            if (branchDTO == null)
                 return null;
             var branch = BranchMapper.ToBranch(branchDTO);
 			await _context.Branches.AddAsync(branch);

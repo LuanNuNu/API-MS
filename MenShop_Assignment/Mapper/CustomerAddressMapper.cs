@@ -11,7 +11,15 @@ namespace MenShop_Assignment.Mapper
             {
                 Id = customerAddress.Id,
                 CustomerName = customerAddress.Customer?.FullName ?? null,
-                Address = customerAddress.Address ?? null,
+                ReceiverPhone = customerAddress.ReceiverPhone ?? null,
+                ReceiverName = customerAddress.ReceiverName ?? null,
+                Street = customerAddress.Street ?? null,
+                DistrictId = customerAddress.DistrictId ?? null,
+                DistrictName = customerAddress.DistrictName ?? null,
+                ProvinceId = customerAddress.ProvinceId ?? null,
+                ProvinceName = customerAddress.ProvinceName ?? null,
+                WardId = customerAddress.WardId ?? null,
+                WardName = customerAddress.WardName ?? null
             };
         }
     }

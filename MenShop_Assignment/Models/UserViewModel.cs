@@ -1,4 +1,6 @@
-﻿namespace MenShop_Assignment.Models
+﻿using MenShop_Assignment.Datas;
+
+namespace MenShop_Assignment.Models
 {
 	public class UserViewModel
 	{
@@ -10,8 +12,8 @@
 		public string? UserRole { get; set; }
 		public string? Gender { get; set; }
 		public DateTime? BirthDate { get; set; }
-		public string? WorkedBranch { get; set; }
-		public string? ManagerName { get; set; }
+        public AddressInfo? WorkArea { get; set; }
+        public string? ManagerName { get; set; }
 		public DateTime? CreatedDate { get; set; }
         public DateTime? DisabledDate { get; set; }
         public bool? IsDisabled { get; set; }

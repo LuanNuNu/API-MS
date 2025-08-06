@@ -1,9 +1,12 @@
-using MenShop_Assignment.Repositories.OrderRepository;
+    using Castle.Core.Resource;
+using MenShop_Assignment.Datas;
+using MenShop_Assignment.DTOs;
+using MenShop_Assignment.Extensions;
 using MenShop_Assignment.Models;
+using MenShop_Assignment.Repositories.OrderRepository;
 using MenShop_Assignment.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using MenShop_Assignment.DTOs;
 
 namespace MenShop_Assignment.APIControllers
 {
@@ -19,59 +22,82 @@ namespace MenShop_Assignment.APIControllers
             _orderService = autoOrderService;
         }
 
-        [HttpGet("getallorders")]
+        [HttpGet("getall-orders")]
         public async Task<IActionResult> GetAllOrders()
         {
             var result = _orderRepository.GetOrdersAsync(null).Result.ToList();
             return Ok(result);
         }
-        [HttpGet("getallonlineorders")]
+        [HttpGet("getall-onlineorders")]
         public async Task<IActionResult> GetAllOnlineOrders()
         {
             var onlineOrders =  _orderRepository.GetOrdersAsync(new SearchOrderDTO { IsOnline= true}).Result.ToList();
             return Ok(onlineOrders);
         }
-        [HttpPut("UpdateOrderShipperStatus")]
-        public async Task<IActionResult> UpdateOrderShipperStatus(string orderId, string shipperId)
+        [HttpGet("get-ordersId/{orderId}")]
+        public async Task<IActionResult> GetOrderById(string orderId)
         {
-            await _orderRepository.ShipperAcceptOrderByOrderId(orderId,shipperId);
-            return NoContent();
+            var orders = await _orderRepository.GetOrdersAsync(new SearchOrderDTO { OrderId = orderId });
+            var order = orders.FirstOrDefault();
+            if (order == null) return NotFound();
+            return Ok(order); 
         }
-        [HttpPut("CompletedOrder")]
-        public async Task<IActionResult> CompleteOrderStatus(string orderId)
-        {
-            await _orderRepository.CompletedOrderStatus(orderId);
-            return NoContent();
-        }
-        [HttpGet("getorders")]
+
+
+
+
+        [HttpGet("get-orders/{shipperId}")]
         public async Task<IActionResult> GetOrdersByShipperId(string shipperId)
         {
             var result =  _orderRepository.GetOrdersAsync(new SearchOrderDTO { ShipperId = shipperId}).Result.ToList();
             return Ok(result);
         }
-        [HttpGet("getordersbyaddress")]
-        public async Task<IActionResult> GetOrdersByShipperAddress()
+
+        [HttpGet("getorders-by-district")]
+        public async Task<ActionResult<ApiResponseModel<List<OrderViewModel>>>> GetOrdersByDistrict(string district)
         {
-            return NoContent();
+            try
+            {
+                var orders = await _orderRepository.GetOrdersAsync(new SearchOrderDTO { District = district });
+
+                var response = new ApiResponseModel<List<OrderViewModel>>(
+                    isSuccess: true,
+                    message: $"Tìm thấy {orders.Count} đơn hàng ở quận {district}",
+                    data: orders.ToList(),
+                    statusCode: 200
+                );
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ApiResponseModel<List<OrderViewModel>>(
+                    isSuccess: false,
+                    message: ex.Message,
+                    data: null,
+                    statusCode: 500
+                );
+
+                return StatusCode(500, errorResponse);
+            }
         }
-        [HttpGet("getordersbydistrict")]
-        public async Task<ActionResult<List<OrderViewModel>>> GetOrdersByDistrict(string district)
-        {
-            var orders =  _orderRepository.GetOrdersAsync(new SearchOrderDTO { District = district}).Result.ToList();
-            return Ok(orders);
-        }
- 
-        [HttpPut("auto-approve")]
-        public async Task<IActionResult> AutoApproveAll()
-        {
-            var result = await _orderService.ApproveAllOrdersAsync();
-            return Ok(result);
-        }
+
+
 
         [HttpPut("auto-approve/{orderId}")]
         public async Task<IActionResult> AutoApprove(string orderId)
         {
-            var result = await _orderService.ApproveOrderAsync(orderId);
+            var result = await _orderService.ApproveOnlineOrderAsync(orderId);
+
+            if (result.Success)
+                return Ok(result);
+            else
+                return BadRequest(result);
+        }
+        [HttpPut("auto-decrease-stock/{orderId}")]
+        public async Task<IActionResult> AutoDecreaseStockOffline(string orderId)
+        {
+            var result = await _orderService.ApproveOfflineOrderAsync(orderId);
 
             if (result.Success)
                 return Ok(result);
@@ -82,13 +108,19 @@ namespace MenShop_Assignment.APIControllers
         [HttpGet("pending")]
         public async Task<IActionResult> GetPending()
         {
-            var result = await _orderService.GetPendingOrdersAsync();
+            var result = await _orderRepository.GetOrdersAsync(
+                new SearchOrderDTO
+                {
+                    Status = OrderStatus.Pending 
+                });
+
             return Ok(result);
         }
 
-		//Order for Customer 
 
-		[HttpGet("getorder")]
+        //Order for Customer 
+
+        [HttpGet("get-order-by-customerId")]
 		public async Task<ActionResult> GetOrdersByCustomerId(string? customerId)
 		{
 			try
@@ -103,25 +135,27 @@ namespace MenShop_Assignment.APIControllers
 			}
 		}
 
-        [HttpGet("getorderdetail/{orderId}")]
-        public async Task<ActionResult> GetOrderById(string orderId)
+        [HttpGet("get-order-detail/{orderId}")]
+        public async Task<ActionResult> GetOrderDetailById(string orderId)
         {
             try
             {
                 if (string.IsNullOrEmpty(orderId))
                     return BadRequest("Mã đơn hàng không hợp lệ");
 
-                var order = await _orderRepository.GetOrdersAsync(new SearchOrderDTO { OrderId = orderId });
-                if (order == null)
+                var orders = await _orderRepository.GetOrderDetailsByOrderIdsAsync(orderId);
+
+                if (orders == null)
                     return NotFound("Không tìm thấy đơn hàng");
 
-                return Ok(order);
+                return Ok(orders); 
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Lỗi: {ex.Message}");
             }
         }
+
 
 
         [HttpGet("search")]
@@ -131,26 +165,61 @@ namespace MenShop_Assignment.APIControllers
 			return Ok(orderList);
 		}
 
-		[HttpPut("cancel")]
-		public async Task<ActionResult> CancelOrder([FromBody] string cancelDto)
-		{
-			try
-			{
-				if (cancelDto == null )
-					return BadRequest("Mã đơn hàng không hợp lệ");
-				var result = await _orderRepository.CancelOrderAsync(cancelDto);
+        [HttpPut("cancel/{orderId}")]
+        public async Task<IActionResult> CancelOrder(string orderId, string reason)
+        {
+            if (string.IsNullOrWhiteSpace(orderId))
+            {
+                return BadRequest(new ApiResponseModel<object>(
+                    false,
+                    "Mã đơn hàng không hợp lệ.",
+                    null,
+                    400
+                ));
+            }
 
-				return result ? Ok("Hủy đơn hàng thành công") : BadRequest("Không thể hủy đơn hàng");
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Lỗi: {ex.Message}");
-			}
-		}
+            var result = await _orderRepository.CancelOrderAsync(orderId, reason);
 
+            return StatusCode(result.StatusCode, result);
+        }
 
+        [HttpPut("complete/{orderId}")]
+        public async Task<ActionResult<ApiResponseModel<object>>> CompleteOrder(string orderId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(orderId))
+                {
+                    return BadRequest(new ApiResponseModel<object>(
+                        false,
+                        "Mã đơn hàng không hợp lệ",
+                        null,
+                        400
+                    ));
+                }
+
+                var result = await _orderRepository.CompletedOrderStatus(orderId);
+                return StatusCode(result.StatusCode, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponseModel<object>(
+                    false,
+                    "Đã xảy ra lỗi hệ thống",
+                    null,
+                    500,
+                    new List<string> { ex.Message }
+                ));
+            }
+        }
+        [HttpPut("updateOrder-shipperStatus")]
+        public async Task<IActionResult> ShipperAcceptOrder([FromQuery] string orderId, [FromQuery] string shipperId)
+        {
+            var result = await _orderRepository.ShipperAcceptOrderByOrderId(orderId, shipperId);
+            return StatusCode(result.StatusCode, result);
+        }
         [HttpPost("createOrder")]
-        public async Task<ActionResult<OrderViewModel>> CreateOrderAsync([FromBody] CreateOrderDTO createOrderDto)
+        public async Task<ActionResult<OrderResponseDTO>> CreateOrderAsync([FromBody] CreateOrderDTO createOrderDto)
         {
             if (createOrderDto == null)
             {

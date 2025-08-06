@@ -31,7 +31,7 @@ namespace MenShop_Assignment.Mapper
 				ProductName = product.ProductName,
 				CategoryProductID = product.Category?.CategoryId,
 				Status = product.Status.ToString(),
-				Price = branchDetail?.Price, // Giá bán tại chi nhánh
+				Price = branchDetail?.Price, 
 				Thumbnail = branchDetail?.ProductDetail?.Images?.FirstOrDefault()?.FullPath
 			};
 		}

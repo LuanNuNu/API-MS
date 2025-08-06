@@ -8,7 +8,7 @@ namespace MenShop_Assignment.Repositories.CustomerAddressRepositories
         Task<List<CustomerAddressViewModel>?> GetAllAsync();
         Task<List<CustomerAddressViewModel>?> GetByCustomerIdAsync(string customerId);
         Task<bool> CreateAsync(CreateUpdateCustomerAddressDTO dto);
-        Task<bool> UpdateAsync(CreateUpdateCustomerAddressDTO dto);
+        Task<bool> UpdateAsync(int id, CreateUpdateCustomerAddressDTO dto);
         Task <bool> DeleteAsync(int id);
     }
 
