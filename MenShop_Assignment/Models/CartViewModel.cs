@@ -17,7 +17,7 @@ namespace MenShop_Assignment.Models
 			{
 				if (Details == null || Details.Count == 0)
 					return 0;
-				return Details.Sum(x => (x.SellPrice ?? 0) * (x.Quantity ?? 0));
+				return Details.Sum(x => (x.DiscountedPrice ?? 0) * (x.Quantity ?? 0));
 			}
 		}
 	}

@@ -13,6 +13,7 @@ namespace MenShop_Assignment.Repositories.BranchesRepository
         Task<Branch?> UpdateBranchAsync(int branchId, CreateUpdateBranchDTO branchDTO);
         Task<List<ProductViewModel>?> GetBranchProductsAsync(int? branchId, int? categoryId, string? role);
         Task<List<ProductDetailViewModel>?> GetDetailProductBranchAsync(int? branchId, int productId, string? role);
+        Task<CartPriceDetailViewModel?> GetProductDetailByIdAsync(int productDetailId, int? branchId, string? role);
         Task<List<ProductViewModel>> SmartSearchProductsAsync(int branchId, string nameLike, int? idMatch);
         Task<bool> DeleteBranchAsync(int branchId);
 

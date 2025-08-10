@@ -41,7 +41,8 @@ namespace MenShop_Assignment.Mapper
                 ColorName = orderDetail.ProductDetail?.Color?.Name ?? null,
 				FabricName = orderDetail.ProductDetail?.Fabric?.Name ?? null,
                 Quantity = orderDetail.Quantity ?? null,
-                SellPrice = orderDetail.Price ?? null,
+                SellPrice = orderDetail.SellPrice ?? null,
+                DiscountedPrice = orderDetail.DiscountedPrice ?? null,
                 ShippingFee = shippingFee
             };
         }

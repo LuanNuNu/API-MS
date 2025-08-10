@@ -11,9 +11,11 @@ namespace MenShop_Assignment.Mapper
             {
                 Id = discountPriceViewModel.Id,
                 Name = discountPriceViewModel.Name,
+                Description = discountPriceViewModel.Description,
                 DiscountPercent = discountPriceViewModel.DiscountPercent,
                 StartTime = discountPriceViewModel.StartTime,
                 EndTime = discountPriceViewModel.EndTime,
+                IsActive = discountPriceViewModel.IsActive
             };
         }
 
@@ -25,7 +27,6 @@ namespace MenShop_Assignment.Mapper
                 Id = entity.Id,
                 discountPriceId = entity.discountPriceId,
                 productDetailId = entity.productDetailId,
-
                 ProductName = entity.ProductDetail?.Product?.ProductName ?? "N/A",
                 ColorName = entity.ProductDetail?.Color?.Name ?? "N/A",
                 SizeName = entity.ProductDetail?.Size?.Name ?? "N/A",

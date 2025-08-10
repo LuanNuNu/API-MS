@@ -26,7 +26,6 @@ namespace MenShop_Assignment.Mapper
                 FabricName = cartDetail.ProductDetail?.Fabric?.Name ?? null,
                 ColorName = cartDetail.ProductDetail?.Color?.Name ?? null,
                 SizeName = cartDetail.ProductDetail?.Size?.Name ?? null,
-                SellPrice = cartDetail.Price ?? 0,
                 Images = cartDetail.ProductDetail?.Images?.Select(x => x.FullPath).ToList() ?? [],
                 Quantity = cartDetail.Quantity ?? 0,
             };

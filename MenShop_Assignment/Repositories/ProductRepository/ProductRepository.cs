@@ -20,28 +20,32 @@ public class ProductRepository : IProductRepository
 	{
 		var products = await _context.Products
 			.Include(p => p.Category)
+            .Where(p => p.Status == true)
 			.AsNoTracking()
 			.ToListAsync();
 
 		return products.Select(ProductMapper.ToProductViewModel).ToList();
 	}
-	public async Task<List<ProductDetailViewModel>> GetProductDetailsByProductIdAsync(int productId)
-	{
-		var details = await _context.ProductDetails
-			.Where(d => d.ProductId == productId)
-			.Include(d => d.Size)
-			.Include(d => d.Color)
-			.Include(d => d.Fabric)
-			.Include(d => d.HistoryPrices)
-			.Include(d => d.Images)
-			.AsSplitQuery()
-			.AsNoTracking()
-			.ToListAsync();
+    public async Task<List<ProductDetailViewModel>> GetProductDetailsByProductIdAsync(int productId)
+    {
+        var details = await _context.ProductDetails
+            .Where(d => d.ProductId == productId)
+            .Include(d => d.Size)
+            .Include(d => d.Color)
+            .Include(d => d.Fabric)
+            .Include(d => d.HistoryPrices)
+            .Include(d => d.Images)
+            .Include(d => d.DiscountPriceDetails)
+                .ThenInclude(dp => dp.DiscountPrice)
+            .AsSplitQuery()
+            .AsNoTracking()
+            .ToListAsync();
 
-		return details.Select(ProductMapper.ToProductDetailViewModel).ToList();
-	}
-	//up1
-	public async Task<List<ImageProductViewModel>> GetImgByProductDetailIdAsync(int productDetailId)
+        return details.Select(ProductMapper.ToProductDetailViewModel).ToList();
+    }
+
+    //up1
+    public async Task<List<ImageProductViewModel>> GetImgByProductDetailIdAsync(int productDetailId)
 	{
 		var images = await _context.ImagesProducts
 			.Where(dt => dt.ProductDetailId == productDetailId)
@@ -72,8 +76,6 @@ public class ProductRepository : IProductRepository
 
         return products.Select(ProductMapper.ToProductViewModel).ToList();
     }
-
-
 
     public async Task<ProductResponseDTO> UpdateProductAsync(int productId, UpdateProductDTO dto)
 	{
@@ -153,7 +155,6 @@ public class ProductRepository : IProductRepository
 
 		return response;
 	}
-
 	public async Task<ImageResponse> UpdateProductDetailImagesAsync(int detailId, List<UpdateImageDTO> images)
 	{
 		var response = new ImageResponse();
@@ -204,8 +205,6 @@ public class ProductRepository : IProductRepository
 
 		return response;
 	}
-
-
 
 	public async Task<bool> UpdateProductStatusAsync(int productId)
 	{

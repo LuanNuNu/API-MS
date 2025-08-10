@@ -111,20 +111,16 @@ namespace MenShop_Assignment.Repositories.CartRepository
             }
             else
             {
-                var productDetail = await _context.ProductDetails
-                    .Include(pd => pd.Product)
-                    .FirstOrDefaultAsync(pd => pd.DetailId == productDetailId);
-                if (productDetail == null)
-                    return false;
+                var productDetailExists = await _context.ProductDetails
+                    .AnyAsync(pd => pd.DetailId == productDetailId);
 
-                var price = branch.BranchDetails
-                    .FirstOrDefault(x => x.ProductDetailId == productDetailId)?.Price;
+                if (!productDetailExists)
+                    return false;
 
                 cart.Details.Add(new CartDetail
                 {
                     ProductDetailId = productDetailId,
                     Quantity = quantity,
-                    Price = price
                 });
             }
 
@@ -190,7 +186,6 @@ namespace MenShop_Assignment.Repositories.CartRepository
 
             int productDetailId = anonymousItem.DetailId;
             int quantity = anonymousItem.Quantity ?? 1;
-            decimal price = anonymousItem.SellPrice ?? 0;
 
             var existingItem = customerCart.Details
                 .FirstOrDefault(d => d.ProductDetailId == productDetailId);
@@ -201,16 +196,18 @@ namespace MenShop_Assignment.Repositories.CartRepository
             }
             else
             {
+
                 customerCart.Details.Add(new CartDetail
                 {
                     ProductDetailId = productDetailId,
-                    Quantity = quantity,
-                    Price = price
+                    Quantity = quantity
                 });
             }
 
             await _context.SaveChangesAsync();
         }
+
+
 
         public async Task DeleteCartByAnonymousIdAsync(string anonymousId)
         {

@@ -44,13 +44,46 @@ namespace MenShop_Assignment.APIControllers
             return Ok(new ApiResponseModel<object>(true, "Xác nhận phiếu nhập thành công", null, 200));
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateReceipt([FromBody] List<CreateReceiptDetailDTO> detailDTOs, [FromQuery] string ManagerId)
+        public async Task<IActionResult> CreateReceipt(
+            [FromBody] List<CreateReceiptDetailDTO> detailDTOs,
+            [FromQuery] string ManagerId)
         {
+            if (detailDTOs == null || !detailDTOs.Any())
+            {
+                return BadRequest(new ApiResponseModel<object>(
+                    false,
+                    "Danh sách chi tiết phiếu nhập không được để trống",
+                    null,
+                    400));
+            }
+
+            if (string.IsNullOrEmpty(ManagerId))
+            {
+                return BadRequest(new ApiResponseModel<object>(
+                    false,
+                    "ManagerId không được để trống",
+                    null,
+                    400));
+            }
+
             var result = await _receiptRepository.CreateInputReceipt(detailDTOs, ManagerId);
+
             if (!result)
-                return BadRequest(new ApiResponseModel<object>(false, "Tạo phiếu nhập thất bại", null, 400));
-            return Ok(new ApiResponseModel<object>(true, "Tạo phiếu nhập thành công", null, 201));
+            {
+                return BadRequest(new ApiResponseModel<object>(
+                    false,
+                    "Tạo phiếu nhập thất bại",
+                    null,
+                    400));
+            }
+
+            return Ok(new ApiResponseModel<object>(
+                true,
+                "Tạo phiếu nhập thành công",
+                null,
+                201));
         }
+
         [HttpPut("cancel/{id}")]
         public async Task<IActionResult> Cancel(int id)
         {

@@ -1,6 +1,8 @@
 ﻿using MenShop_Assignment.Datas;
+using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Mapper;
 using MenShop_Assignment.Models;
+using MenShop_Assignment.Models.ProductModels.ReponseDTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace MenShop_Assignment.Repositories.CollectionRepository
@@ -16,7 +18,9 @@ namespace MenShop_Assignment.Repositories.CollectionRepository
 
         public async Task<ApiResponseModel<List<CollectionViewModel>>> GetAllCollection()
         {
-            var collections = await _context.Collections.ToListAsync();
+            var collections = await _context.Collections          
+                .Where(c => c.Status == true)
+                .ToListAsync();
             var result = collections.Select(CollectionMapper.ToCollectionViewModel).ToList();
 
             return new ApiResponseModel<List<CollectionViewModel>>(true, "Lấy danh sách thành công", result, 200);
@@ -175,7 +179,7 @@ namespace MenShop_Assignment.Repositories.CollectionRepository
             }
         }
 
-        public async Task<ApiResponseModel<bool>> UpdateCollectionStatus(int collectionId, bool newStatus)
+        public async Task<ApiResponseModel<bool>> UpdateCollectionStatus(int collectionId)
         {
             try
             {
@@ -183,15 +187,110 @@ namespace MenShop_Assignment.Repositories.CollectionRepository
                 if (collection == null)
                     return new ApiResponseModel<bool>(false, "Không tìm thấy bộ sưu tập", false, 404);
 
-                collection.Status = newStatus;
+    
+                collection.Status = collection.Status == true ? false : true;
                 _context.Collections.Update(collection);
+
+                var products = await (
+                     from p in _context.Products
+                     join cd in _context.CollectionDetails
+                         on p.ProductId equals cd.ProductId
+                     where cd.CollectionId == collectionId
+                     select p
+                 ).ToListAsync();
+
+
+
+                foreach (var product in products)
+                {
+                    product.Status = collection.Status; 
+                }
+
+                _context.Products.UpdateRange(products);
                 await _context.SaveChangesAsync();
+
                 return new ApiResponseModel<bool>(true, "Cập nhật trạng thái thành công", true, 200);
             }
             catch (DbUpdateException ex)
             {
                 return new ApiResponseModel<bool>(false, "Lỗi khi cập nhật trạng thái", false, 500, new List<string> { ex.Message });
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
+        public async Task<List<CreateImageResponse>> AddImagesToCollectionAsync(int collectionId, List<string> imageUrls)
+        {
+            var responses = new List<CreateImageResponse>();
+
+            try
+            {
+                foreach (var url in imageUrls)
+                {
+                    var path = Path.GetFileName(new Uri(url).LocalPath);
+                    bool isDuplicate = await _context.ImageCollections
+                        .AnyAsync(i => i.CollectionId == collectionId && i.Path == path);
+
+                    if (isDuplicate)
+                    {
+                        responses.Add(new CreateImageResponse
+                        {
+                            IsSuccess = false,
+                            Message = $"Ảnh với tên `{path}` đã tồn tại."
+                        });
+                        continue;
+                    }
+
+                    var image = new ImageCollection
+                    {
+                        Path = path,
+                        FullPath = url,
+                        CollectionId = collectionId
+                    };
+
+                    _context.ImageCollections.Add(image);
+                    await _context.SaveChangesAsync();
+
+                    var res = CollectionMapper.ToCreateImageResponse(image);
+                    res.IsSuccess = true;
+                    res.Message = $"Thêm ảnh `{path}` thành công.";
+                    responses.Add(res);
+                }
+            }
+            catch (Exception ex)
+            {
+                responses.Add(new CreateImageResponse
+                {
+                    IsSuccess = false,
+                    Message = "Lỗi: " + ex.Message
+                });
+            }
+
+            return responses;
+        }
+
+        public async Task DeleteImageAsync(int imageId)
+        {
+            var image = await _context.ImageCollections.FindAsync(imageId);
+            if (image == null)
+            {
+                throw new Exception($"Ảnh với ID {imageId} không tồn tại.");
+            }
+            _context.ImageCollections.Remove(image);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<ImageCollectionViewModel>> GetImgByCollectionIdAsync(int collectionId)
+        {
+            var images = await _context.ImageCollections
+                .Where(dt => dt.CollectionId == collectionId)
+                .ToListAsync();
+
+            return images.Select(CollectionMapper.ToImageViewModel).ToList();
         }
     }
 

@@ -33,13 +33,24 @@ namespace MenShop_Assignment.Repositories.DiscountPriceRepository
             return new ApiResponseModel<DiscountPriceViewModel?>(true, "Thành công", viewModel, 200);
         }
 
-        public async Task<ApiResponseModel<bool>> CreateDiscount(DiscountPrice discountPrice)
+        public async Task<ApiResponseModel<bool>> CreateDiscount(CreateDiscountPriceDTO dto)
         {
             try
             {
+                var discountPrice = new DiscountPrice
+                {
+                    Name = dto.Name,
+                    DiscountPercent = dto.DiscountPercent,
+                    Description = dto.Description,
+                    StartTime = dto.StartTime,
+                    EndTime = dto.EndTime,
+                    IsActive = dto.IsActive
+                };
+
                 _context.DiscountPrices.Add(discountPrice);
                 await _context.SaveChangesAsync();
-                return new ApiResponseModel<bool>(true, "Tạo khuyến mãi thành công", true, 201);
+
+                return new ApiResponseModel<bool>(true, "Tạo chương trình khuyến mãi thành công", true, 201);
             }
             catch (Exception ex)
             {
@@ -47,21 +58,25 @@ namespace MenShop_Assignment.Repositories.DiscountPriceRepository
             }
         }
 
-        public async Task<ApiResponseModel<bool>> UpdateDiscount(DiscountPrice discountPrice)
+
+        public async Task<ApiResponseModel<bool>> UpdateDiscount(int id, CreateDiscountPriceDTO dto)
         {
             try
             {
-                var existing = await _context.DiscountPrices.FindAsync(discountPrice.Id);
+                var existing = await _context.DiscountPrices.FindAsync(id);
                 if (existing == null)
                     return new ApiResponseModel<bool>(false, "Không tìm thấy khuyến mãi", false, 404);
 
-                existing.Name = discountPrice.Name;
-                existing.DiscountPercent = discountPrice.DiscountPercent;
-                existing.StartTime = discountPrice.StartTime;
-                existing.EndTime = discountPrice.EndTime;
+                existing.Name = dto.Name;
+                existing.Description = dto.Description;
+                existing.DiscountPercent = dto.DiscountPercent;
+                existing.StartTime = dto.StartTime;
+                existing.EndTime = dto.EndTime;
+                existing.IsActive = dto.IsActive;
 
                 _context.DiscountPrices.Update(existing);
                 await _context.SaveChangesAsync();
+
                 return new ApiResponseModel<bool>(true, "Cập nhật thành công", true, 200);
             }
             catch (Exception ex)
@@ -69,6 +84,7 @@ namespace MenShop_Assignment.Repositories.DiscountPriceRepository
                 return new ApiResponseModel<bool>(false, "Lỗi khi cập nhật", false, 500, new List<string> { ex.Message });
             }
         }
+
 
         public async Task<ApiResponseModel<bool>> DeleteDiscount(int Id)
         {
@@ -118,39 +134,80 @@ namespace MenShop_Assignment.Repositories.DiscountPriceRepository
             return new ApiResponseModel<List<DiscountPriceDetailViewModel>>(true, "Thành công", result, 200);
         }
 
-        public async Task<ApiResponseModel<bool>> CreateDiscountDetail(DiscountPriceDetail discountPriceDetail)
+        public async Task<ApiResponseModel<object>> CreateDiscountDetails(CreateDiscountDetailDTO dto)
         {
+            var failedIds = new List<int>();
+
             try
             {
-                bool isExisted = await _context.DiscountPriceDetails
-                    .AnyAsync(x => x.productDetailId == discountPriceDetail.productDetailId);
+                foreach (var productDetailId in dto.productDetailIds)
+                {
+                    bool isExisted = await _context.DiscountPriceDetails
+                        .AnyAsync(x => x.productDetailId == productDetailId);
 
-                if (isExisted)
-                    return new ApiResponseModel<bool>(false, "Sản phẩm đã có khuyến mãi", false, 400);
+                    if (isExisted)
+                    {
+                        failedIds.Add(productDetailId);
+                        continue;
+                    }
 
-                _context.DiscountPriceDetails.Add(discountPriceDetail);
+                    var detail = new DiscountPriceDetail
+                    {
+                        discountPriceId = dto.discountPriceId,
+                        productDetailId = productDetailId
+                    };
+
+                    _context.DiscountPriceDetails.Add(detail);
+                }
+
                 await _context.SaveChangesAsync();
-                return new ApiResponseModel<bool>(true, "Thêm thành công", true, 201);
+
+                if (failedIds.Any())
+                {
+                    return new ApiResponseModel<object>(
+                        false,
+                        "Một số sản phẩm đã có chương trình khuyến mãi hoặc lỗi khi thêm.",
+                        false,
+                        207,
+                        new List<string>()
+                    );
+                }
+
+                return new ApiResponseModel<object>(
+                    true,
+                    "Tất cả sản phẩm đã được thêm vào khuyến mãi.",
+                    true,
+                    201
+                );
             }
             catch (Exception ex)
             {
-                return new ApiResponseModel<bool>(false, "Lỗi khi thêm", false, 500, new List<string> { ex.Message });
+                return new ApiResponseModel<object>(
+                    false,
+                    "Lỗi khi thêm chi tiết khuyến mãi.",
+                    false,
+                    500,
+                    new List<string> { ex.Message }
+                );
             }
         }
 
-        public async Task<ApiResponseModel<bool>> UpdateDiscountDetail(DiscountPriceDetail discountPrice)
+
+        public async Task<ApiResponseModel<bool>> UpdateDiscountDetail(int id, UpdateDiscountDetailDTO dto)
         {
             try
             {
-                var existing = await _context.DiscountPriceDetails.FindAsync(discountPrice.Id);
+                var existing = await _context.DiscountPriceDetails.FindAsync(id);
                 if (existing == null)
                     return new ApiResponseModel<bool>(false, "Không tìm thấy chi tiết", false, 404);
 
-                existing.discountPriceId = discountPrice.discountPriceId;
-                existing.productDetailId = discountPrice.productDetailId;
+                // Mapping
+                existing.discountPriceId = dto.discountPriceId;
+                existing.productDetailId = dto.productDetailId;
 
                 _context.DiscountPriceDetails.Update(existing);
                 await _context.SaveChangesAsync();
+
                 return new ApiResponseModel<bool>(true, "Cập nhật thành công", true, 200);
             }
             catch (Exception ex)
@@ -158,6 +215,7 @@ namespace MenShop_Assignment.Repositories.DiscountPriceRepository
                 return new ApiResponseModel<bool>(false, "Lỗi khi cập nhật", false, 500, new List<string> { ex.Message });
             }
         }
+
 
         public async Task<ApiResponseModel<bool>> DeleteDiscountDetail(int Id)
         {
@@ -176,20 +234,44 @@ namespace MenShop_Assignment.Repositories.DiscountPriceRepository
                 return new ApiResponseModel<bool>(false, "Lỗi khi xoá", false, 500, new List<string> { ex.Message });
             }
         }
-
-        public async Task<ApiResponseModel<List<DiscountPriceDetailViewModel>>> GetDiscountDetailsByProductDetailId(int productDetailId)
+        public async Task<ApiResponseModel<DiscountPriceDetailViewModel?>> GetDiscountDetailsByProductDetailId(int productDetailId)
         {
-            var details = await _context.DiscountPriceDetails
+            var detail = await _context.DiscountPriceDetails
                 .Where(d => d.productDetailId == productDetailId)
                 .Include(d => d.DiscountPrice)
                 .Include(d => d.ProductDetail).ThenInclude(p => p.Product)
                 .Include(d => d.ProductDetail).ThenInclude(p => p.Color)
                 .Include(d => d.ProductDetail).ThenInclude(p => p.Size)
                 .Include(d => d.ProductDetail).ThenInclude(p => p.Fabric)
-                .ToListAsync();
+                .FirstOrDefaultAsync();
 
-            var result = details.Select(DiscountPriceMapper.ToDiscountById).ToList();
-            return new ApiResponseModel<List<DiscountPriceDetailViewModel>>(true, "Thành công", result, 200);
+            if (detail == null)
+            {
+                return new ApiResponseModel<DiscountPriceDetailViewModel?>(
+                    false, "Không tìm thấy giảm giá cho sản phẩm này", null, 404
+                );
+            }
+
+            var result = DiscountPriceMapper.ToDiscountById(detail);
+            return new ApiResponseModel<DiscountPriceDetailViewModel?>(
+                true, "Thành công", result, 200
+            );
+        }
+
+
+        public async Task<bool> UpdateDiscountStatusAsync(int discountId)
+        {
+            var discount = await _context.DiscountPrices.FindAsync(discountId);
+            if (discount == null)
+            {
+                return false;
+            }
+
+            discount.IsActive = discount.IsActive == true ? false : true;
+            _context.DiscountPrices.Update(discount);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 

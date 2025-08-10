@@ -1,5 +1,7 @@
 ﻿using MenShop_Assignment.Datas;
+using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Models;
+using MenShop_Assignment.Models.ProductModels.ReponseDTO;
 
 namespace MenShop_Assignment.Repositories.CollectionRepository
 {
@@ -14,7 +16,10 @@ namespace MenShop_Assignment.Repositories.CollectionRepository
         Task<ApiResponseModel<bool>> AddDetail(CollectionDetail detail);
         Task<ApiResponseModel<bool>> UpdateDetail(CollectionDetail detail);
         Task<ApiResponseModel<bool>> DeleteDetail(int detailId);
-        Task<ApiResponseModel<bool>> UpdateCollectionStatus(int collectionId, bool newStatus);
+        Task<ApiResponseModel<bool>> UpdateCollectionStatus(int collectionId);
+        Task<List<CreateImageResponse>> AddImagesToCollectionAsync(int collectionId, List<string> imageUrls);
+        Task<List<ImageCollectionViewModel>> GetImgByCollectionIdAsync(int collectionId);
+        Task DeleteImageAsync(int imageId);
     }
 
 }

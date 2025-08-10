@@ -54,10 +54,6 @@ namespace MenShop_Assignment.APIControllers
 		{
 			if (dto == null || dto.ProductDetailId == 0 || dto.Quantity <= 0 || string.IsNullOrEmpty(dto.CustomerId) && string.IsNullOrEmpty(dto.AnonymousId))
 				return BadRequest(new ApiResponseModel<object>(false, "Dữ liệu không hợp lệ", null, 400));
-
-			//if(dto.CustomerId==null)
-			//	return NotFound(new ApiResponseModel<object>(false,"Không tìm thấy người dùng", null, 404));
-
 			var result = await _cartRepository.AddToCartAsync(dto.CustomerId, dto.AnonymousId, dto.ProductDetailId, dto.Quantity);
 			if (!result)
 				return NotFound(new ApiResponseModel<object>(false, "Không thêm được vào giỏ hàng", null, 404));
@@ -70,9 +66,6 @@ namespace MenShop_Assignment.APIControllers
 		{
 			if (dto.Quantity < 1)
 				return BadRequest(new ApiResponseModel<object>(false, "Số lượng phải lớn hơn 0", null, 400));
-
-			//if (dto.CustomerId == null || dto.AnonymousId == null)
-			//	return NotFound(new ApiResponseModel<object>(false, "Không tìm thấy người dùng", null, 404));
 
 			var reponse = await _cartRepository.UpdateQuantityAsync(dto.CustomerId, dto.AnonymousId,dto.ProductDetailId, dto.Quantity);
 			if (!reponse)

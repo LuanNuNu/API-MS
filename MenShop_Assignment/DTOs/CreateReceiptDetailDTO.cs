@@ -2,10 +2,10 @@
 {
     public class CreateReceiptDetailDTO
     {
+        public int? CategoryId { get; set; }
         public int? ProductId { get; set; }
-        public int? ColorId { get; set; }
-        public int? SizeId { get; set; }
-        public int? FabricId { get; set; }
+        public int? ProfitPercent { get; set; }
+        public int? ProductDetailId { get; set; }
         public decimal? Price { get; set; }
         public int? Quantity { get; set; }
     }

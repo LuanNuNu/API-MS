@@ -86,6 +86,21 @@ namespace MenShop_Assignment.APIControllers
             return Ok(new ApiResponseModel<object>(true, "Lấy chi tiết sản phẩm thành công", details, 200));
         }
 
+        [HttpGet("productDetails/{productDetailId}")]
+        public async Task<IActionResult> GetProductDetail([FromQuery] int branchId, int productDetailId)
+        {
+            if (productDetailId <= 0)
+                return BadRequest(new ApiResponseModel<object>(false, "Mã chi tiết sản phẩm không hợp lệ.", null, 400));
+
+            var role = User?.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";
+
+            // Sửa thứ tự tham số cho đúng
+            var detail = await _branchRepository.GetProductDetailByIdAsync(productDetailId, branchId, role);
+
+            if (detail == null)
+                return NotFound(new ApiResponseModel<object>(false, "Không tìm thấy chi tiết sản phẩm.", null, 404));
+            return Ok(new ApiResponseModel<object>(true, "Lấy chi tiết sản phẩm thành công", detail, 200));
+        }
 
         [HttpGet("{branchId}/search")]
         public async Task<IActionResult> SearchProductInBranch(int branchId, [FromQuery] string searchTerm)

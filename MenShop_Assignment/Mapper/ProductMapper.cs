@@ -25,12 +25,15 @@ namespace MenShop_Assignment.Mapper
         //
 		public static ProductViewModel ToBranchProductViewModel(Product product, BranchDetail? branchDetail)
 		{
-			return new ProductViewModel
+            var firstCollection = product.CollectionDetails?.FirstOrDefault()?.Collection;
+            return new ProductViewModel
 			{
 				ProductId = product.ProductId,
 				ProductName = product.ProductName,
 				CategoryProductID = product.Category?.CategoryId,
-				Status = product.Status.ToString(),
+                CollectionId = firstCollection?.CollectionId,
+                CollectionName = firstCollection?.CollectionName,
+                Status = product.Status.ToString(),
 				Price = branchDetail?.Price, 
 				Thumbnail = branchDetail?.ProductDetail?.Images?.FirstOrDefault()?.FullPath
 			};
@@ -42,6 +45,12 @@ namespace MenShop_Assignment.Mapper
             var latestPrice = productDetail.HistoryPrices?
                 .OrderByDescending(h => h.UpdatedDate)
                 .FirstOrDefault();
+            var now = DateTime.Now;
+            var activeDiscount = productDetail.DiscountPriceDetails?
+                .FirstOrDefault(x => x.DiscountPrice != null
+				&& x.DiscountPrice.IsActive == true)
+                ?.DiscountPrice;
+
 
             return new ProductDetailViewModel
             {
@@ -52,7 +61,8 @@ namespace MenShop_Assignment.Mapper
                 ProductName = productDetail.Product?.ProductName,
                 InputPrice = latestPrice?.InputPrice,
                 SellPrice = latestPrice?.SellPrice,
-                LatestPriceDate = latestPrice?.UpdatedDate,
+                LatestPriceDate = latestPrice?.UpdatedDate ,
+                DiscountPercent = activeDiscount?.DiscountPercent ?? 0,
                 Images = productDetail.Images?.Select(x => x.FullPath).ToList() ?? [],
             };
         }

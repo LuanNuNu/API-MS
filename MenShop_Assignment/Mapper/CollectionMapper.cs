@@ -1,6 +1,7 @@
 ﻿using MenShop_Assignment.Datas;
 using MenShop_Assignment.Models;
 using MenShop_Assignment.Models.ProductModels.ReponseDTO;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MenShop_Assignment.Mapper
 {
@@ -45,8 +46,20 @@ namespace MenShop_Assignment.Mapper
             return new ImageCollectionViewModel
             {
                 Id = img.Id,
-                Url = img.FullPath,
-                CollectionId = img.CollectionId
+                FullPath = string.IsNullOrEmpty(img.FullPath)
+                    ? $"http://localhost:5014/StaticFiles/Images/{img.Path}"
+                    : img.FullPath,
+                CollectionId = img.CollectionId};
+        }
+        public static CreateImageResponse ToCreateImageResponse(ImageCollection image)
+        {
+            return new CreateImageResponse
+            {
+                ImageId = image.Id,
+                ProductDetailId = image.CollectionId,
+                ImageUrl = string.IsNullOrEmpty(image.FullPath)
+                    ? $"http://localhost:5014/StaticFiles/Images/{image.Path}"
+                    : image.FullPath
             };
         }
     }

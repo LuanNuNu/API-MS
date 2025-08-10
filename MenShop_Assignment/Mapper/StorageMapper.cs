@@ -10,9 +10,8 @@ namespace MenShop_Assignment.Mapper
             return new StorageViewModel
             {
                 StorageId = storage.StorageId,
-                CategoryProduct = storage.CategoryProduct?.Name ?? null,
-                ManagerName = storage.Manager?.FullName ?? null,
-                StorageDetails = storage.StorageDetails?.Select(ToStorageDetailViewModel).ToList() ?? [],
+                CategoryName = storage.CategoryProduct?.Name ?? null,
+                ManagerName = storage.Manager?.FullName ?? null
             };
         }
         public static ProductDetailViewModel ToStorageDetailViewModel(StorageDetail storage)

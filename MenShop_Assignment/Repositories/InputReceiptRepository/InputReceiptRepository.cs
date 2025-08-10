@@ -2,6 +2,7 @@
 using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Mapper;
 using MenShop_Assignment.Models;
+using MenShop_Assignment.Extensions;
 using MenShop_Assignment.Repositories.InputReceiptRepository;
 using Microsoft.EntityFrameworkCore;
 
@@ -81,9 +82,12 @@ namespace MenShop_Assignment.Repositories.InputReceiptRepositories
                     UpdatedDate = DateTime.Now
                 };
                 _context.HistoryPrices.Add(historyPrice);
-                await _context.SaveChangesAsync();
 
-                var storageDetail = _context.StorageDetails.Where(x => x.StorageId == inputReceipt.StorageId && x.ProductDetailId == detail.ProductDetailId).FirstOrDefault();
+                var storageDetail = _context.StorageDetails
+                    .FirstOrDefault(x => x.StorageId == inputReceipt.StorageId
+                                      && x.ProductDetailId == detail.ProductDetailId
+                                      && x.Price == detail.Price);
+
                 if (storageDetail == null)
                 {
                     var newStorageDetail = new StorageDetail
@@ -94,58 +98,66 @@ namespace MenShop_Assignment.Repositories.InputReceiptRepositories
                         Quantity = detail.Quantity,
                     };
                     await _context.StorageDetails.AddAsync(newStorageDetail);
-                    continue;
                 }
-                storageDetail.Price = detail.Price;
-                storageDetail.Quantity += detail.Quantity;
-                _context.SaveChanges();
+                else
+                {
+                    storageDetail.Quantity += detail.Quantity;
+                }
             }
+            await _context.SaveChangesAsync();
             return true;
         }
         public async Task<bool> CreateInputReceipt(List<CreateReceiptDetailDTO> detailDTOs, string ManagerId)
         {
-            List<InputReceiptDetail> inputReceiptDetails = detailDTOs.Select(x => InputReceiptMapper.ToInputReceiptDetail(x, _context)).ToList();
-            var productDetailIds = inputReceiptDetails.Select(ird => ird.ProductDetailId).ToList();
-            var uniqueCategoryId = _context.ProductDetails.Where(pd => productDetailIds.Contains(pd.DetailId))
-                .Include(pd => pd.Product)
-                .Select(pd => pd.Product.CategoryId.Value)
-                .Distinct()
-                .ToList();
+            var groupedDetails = detailDTOs
+                .Where(x => x.CategoryId.HasValue)
+                .GroupBy(x => x.CategoryId.Value)
+                .ToDictionary(g => g.Key, g => g.ToList());
 
-            for (int i = 0; i < uniqueCategoryId.Count; i++)
+            foreach (var kvp in groupedDetails)
             {
+                int storageId = kvp.Key;
+                var groupDetails = kvp.Value;
+
                 var newReceipt = new InputReceipt
                 {
-                    ConfirmedDate = DateTime.Now,
+                    CreatedDate = DateTime.Now,
                     ManagerId = ManagerId,
-                    Status = Extensions.OrderStatus.Created,
-                    StorageId = _context.Storages.Where(x => x.CategoryId == uniqueCategoryId[i]).FirstOrDefault().StorageId,
+                    Status = OrderStatus.Created,
+                    StorageId = storageId,
                     Total = 0,
                 };
-                _context.InputReceipts.Add(newReceipt);
-                await _context.SaveChangesAsync();
+
+                await _context.InputReceipts.AddAsync(newReceipt);
+                await _context.SaveChangesAsync(); // Lưu để có ReceiptId
+
                 decimal total = 0;
-                foreach (var detail in inputReceiptDetails)
+
+                foreach (var dto in groupDetails)
                 {
-                    total += detail.Price.Value;
-                    var productDetail = await _context.ProductDetails.Where(x => x.DetailId == detail.ProductDetailId).Include(x => x.Product).FirstOrDefaultAsync();
-                    if (productDetail.Product.CategoryId == uniqueCategoryId[i])
+                    if (!dto.ProductDetailId.HasValue || !dto.Quantity.HasValue)
+                        continue;
+
+                    total += dto.Price.HasValue ? dto.Price.Value * dto.Quantity.Value : 0;
+
+                    var detail = new InputReceiptDetail
                     {
-                        var detailCopy = new InputReceiptDetail
-                        {
-                            ReceiptId = newReceipt.ReceiptId,
-                            ProductDetailId = detail.ProductDetailId,
-                            Quantity = detail.Quantity,
-                            Price = detail.Price
-                        };
-                        _context.InputReceiptDetails.Add(detailCopy);
-                    }
+                        ReceiptId = newReceipt.ReceiptId,
+                        ProductDetailId = dto.ProductDetailId.Value,
+                        Quantity = dto.Quantity.Value,
+                        Price = dto.Price
+                    };
+
+                    await _context.InputReceiptDetails.AddAsync(detail);
                 }
+
                 newReceipt.Total = total;
-                await _context.SaveChangesAsync();
             }
+
+            await _context.SaveChangesAsync();
             return true;
         }
+
         public async Task<bool> CancelReceipt(int Id)
         {
             var receipt = await _context.InputReceipts.Where(x => x.ReceiptId == Id).FirstOrDefaultAsync();

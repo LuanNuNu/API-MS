@@ -16,6 +16,7 @@ namespace MenShop_Assignment.Mapper
                 ConfirmedDate = inputReceipt.ConfirmedDate ?? null,
                 CancelDate = inputReceipt.CancelDate ?? null,
                 ManagerName = inputReceipt.Manager?.FullName ?? null,
+
                 StorageName = "Kho " + inputReceipt.Storage?.CategoryProduct?.Name ?? null,
                 Status = inputReceipt.Status.ToString() ?? null,
                 Total = inputReceipt.Total ?? 0,
@@ -37,17 +38,11 @@ namespace MenShop_Assignment.Mapper
             };
         }
 
-        public static InputReceiptDetail ToInputReceiptDetail(CreateReceiptDetailDTO dto, ApplicationDbContext context)
+        public static InputReceiptDetail ToInputReceiptDetail(CreateReceiptDetailDTO dto)
         {
-            var productDetail = context.ProductDetails.FirstOrDefault(pd =>
-                pd.ProductId == dto.ProductId &&
-                pd.ColorId == dto.ColorId &&
-                pd.SizeId == dto.SizeId &&
-                pd.FabricId == dto.FabricId);
-
             return new InputReceiptDetail
             {
-                ProductDetailId = productDetail.DetailId,
+                ProductDetailId = dto.ProductDetailId ?? 0,
                 Quantity = dto.Quantity,
                 Price = dto.Price
             };

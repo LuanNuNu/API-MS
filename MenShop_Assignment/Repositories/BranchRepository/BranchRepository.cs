@@ -89,7 +89,9 @@ namespace MenShop_Assignment.Repositories
                     .ThenInclude(pd => pd.Product)
                         .ThenInclude(p => p.Category)
                 .Include(x => x.ProductDetail.Images)
-                .Where(x => x.BranchId == resolvedBranchId);
+                .Include(x => x.ProductDetail.Product.CollectionDetails)
+                .ThenInclude(cd => cd.Collection)
+                .Where(x => x.BranchId == resolvedBranchId && x.ProductDetail.Product.Status == true);
 
             if (categoryId.HasValue && categoryId > 0)
             {
@@ -149,6 +151,8 @@ namespace MenShop_Assignment.Repositories
                 .Include(x => x.ProductDetail.Size)
                 .Include(x => x.ProductDetail.Fabric)
                 .Include(x => x.ProductDetail.Images)
+                .Include(x => x.ProductDetail.DiscountPriceDetails)
+                    .ThenInclude(dp => dp.DiscountPrice)
                 .Where(x => x.ProductDetail.Product.ProductId == productId)
                 .Where(x => x.BranchId == resolvedBranchId);
 
@@ -162,7 +166,52 @@ namespace MenShop_Assignment.Repositories
                 .ToList();
         }
 
+        public async Task<CartPriceDetailViewModel?> GetProductDetailByIdAsync(int productDetailId, int? branchId, string? role)
+        {
+            var isGuestOrCustomer = string.IsNullOrEmpty(role) || role == "Customer";
+            int? resolvedBranchId = branchId;
 
+            if (resolvedBranchId <= 0)
+                resolvedBranchId = null;
+
+            if (resolvedBranchId == null)
+            {
+                if (isGuestOrCustomer)
+                {
+                    var onlineBranch = await _context.Branches
+                        .FirstOrDefaultAsync(b => b.IsOnline);
+
+                    if (onlineBranch == null)
+                        return null;
+
+                    resolvedBranchId = onlineBranch.BranchId;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            var branchDetail = await GetBranchDetailEntityAsync(productDetailId, resolvedBranchId.Value);
+            if (branchDetail == null) return null;
+
+            return BranchMapper.ToCartPriceDetailViewModel(branchDetail);
+        }
+
+        private async Task<BranchDetail?> GetBranchDetailEntityAsync(int productDetailId, int branchId)
+        {
+            return await _context.BranchDetails
+                .Include(x => x.ProductDetail)
+                    .ThenInclude(pd => pd.Product)
+                .Include(x => x.ProductDetail.Color)
+                .Include(x => x.ProductDetail.Size)
+                .Include(x => x.ProductDetail.Fabric)
+                .Include(x => x.ProductDetail.Images)
+                .Include(x => x.ProductDetail.DiscountPriceDetails)
+                    .ThenInclude(dp => dp.DiscountPrice)
+                .Where(x => x.ProductDetail.DetailId == productDetailId)
+                .Where(x => x.BranchId == branchId)
+                .FirstOrDefaultAsync();
+        }
 
         public async Task<List<ProductViewModel>> SmartSearchProductsAsync(int branchId, string nameLike, int? idMatch)
         {

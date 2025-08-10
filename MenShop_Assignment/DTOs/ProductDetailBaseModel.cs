@@ -8,6 +8,7 @@
         public string? ColorName { get; set; }
         public string? FabricName { get; set; }
         public decimal? SellPrice { get; set; }
+        public decimal? DiscountedPrice { get; set; }
         public int? Quantity { get; set; }
         public ICollection<string>? Images { get; set; }
     }

@@ -41,13 +41,18 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] List<CreateReceiptDetailDTO> detailDTOs, [FromQuery] int branchId, [FromQuery] string managerId)
+        public async Task<IActionResult> Create(
+            [FromBody] List<CreateReceiptDetailDTO> detailDTOs,
+            [FromQuery] int branchId,
+            [FromQuery] string managerId)
         {
             var result = await _outputReceiptRepository.CreateReceipt(branchId, managerId, detailDTOs);
             if (!result)
                 return BadRequest(new ApiResponseModel<object>(false, "Tạo phiếu xuất thất bại", null, 400));
+
             return Ok(new ApiResponseModel<object>(true, "Tạo phiếu xuất thành công", null, 201));
         }
+
 
         [HttpPut("confirm/{id}")]
         public async Task<IActionResult> Confirm(int id)

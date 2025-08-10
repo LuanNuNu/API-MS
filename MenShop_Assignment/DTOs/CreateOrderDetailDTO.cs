@@ -4,6 +4,7 @@
     {
         public int ProductDetailId { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public decimal? SellPrice { get; set; }
+        public decimal? DiscountedPrice { get; set; }
     }
 }

@@ -353,7 +353,8 @@ namespace MenShop_Assignment.Repositories.OrderRepository
             {
                 ProductDetailId = d.ProductDetailId,
                 Quantity = d.Quantity,
-                Price = d.Price
+                SellPrice = d.SellPrice,
+                DiscountedPrice = d.DiscountedPrice,
             }).ToList();
 
             bool isOnline = string.IsNullOrWhiteSpace(createOrderDTO.EmployeeId);
@@ -368,7 +369,7 @@ namespace MenShop_Assignment.Repositories.OrderRepository
                 BranchId = createOrderDTO.BranchId,
                 CreatedDate = DateTime.Now,
                 Status = OrderStatus.Pending,
-                Subtotal = orderDetails.Sum(d => (d.Price ?? 0) * d.Quantity).GetValueOrDefault(),
+                Subtotal = orderDetails.Sum(d => (d.DiscountedPrice ?? 0) * d.Quantity).GetValueOrDefault(),
                 ShippingFee = createOrderDTO.ShippingFee ?? 0,
                 Address = createOrderDTO.Address,
                 ReceiverName = createOrderDTO.ReceiverName,

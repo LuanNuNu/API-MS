@@ -37,20 +37,11 @@ namespace MenShop_Assignment.Mapper
                 Images = receiptDetail.ProductDetail?.Images?.Select(x => x.FullPath).ToList() ?? [],
             };
         }
-        public static OutputReceiptDetail ToOutputReceiptDetail(CreateReceiptDetailDTO dto, ApplicationDbContext context)
+        public static OutputReceiptDetail ToOutputReceiptDetail(CreateReceiptDetailDTO dto)
         {
-
-
-            var productDetail = context.ProductDetails.FirstOrDefault(pd =>
-                pd.ProductId == dto.ProductId &&
-                pd.ColorId == dto.ColorId &&
-                pd.SizeId == dto.SizeId &&
-                pd.FabricId == dto.FabricId);
-
-
             return new OutputReceiptDetail
             {
-                ProductDetailId = productDetail.DetailId,
+                ProductDetailId = dto.ProductDetailId ?? 0,
                 Quantity = dto.Quantity,
             };
         }

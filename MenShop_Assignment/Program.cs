@@ -79,6 +79,8 @@ builder.Services.AddScoped<IMomoServices, MomoServices>();
 builder.Services.AddScoped<IVNPayService, VNPayService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<EmailService>();
+
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -139,12 +141,21 @@ if (app.Environment.IsDevelopment())
 
 
 
-app.UseStaticFiles(new StaticFileOptions
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(
+//        Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles")),
+//    RequestPath = "/StaticFiles"
+//});
+var staticFilesPath = Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles");
+if (Directory.Exists(staticFilesPath))
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles")),
-    RequestPath = "/StaticFiles"
-});
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(staticFilesPath),
+        RequestPath = "/StaticFiles"
+    });
+}
 app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
