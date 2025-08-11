@@ -1,5 +1,6 @@
 ﻿using MenShop_Assignment.Models;
 using MenShop_Assignment.Repositories.StorageRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MenShop_Assignment.APIControllers
@@ -16,14 +17,17 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAll()
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> GetAll()
 		{
 			var storages = await _storageRepo.GetAllStoragesAsync();
 			return Ok(new ApiResponseModel<List<StorageViewModel>>(true, "Lấy danh sách kho thành công", storages, 200));
 		}
 
 		[HttpGet("{storageId}/products")]
-		public async Task<IActionResult> GetProductsByStorageId(int storageId)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+
+        public async Task<IActionResult> GetProductsByStorageId(int storageId)
 		{
 			var products = await _storageRepo.GetProductsByStorageIdAsync(storageId);
 			if (products == null)
@@ -32,7 +36,9 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet("product/{productId}/details")]
-		public async Task<IActionResult> GetDetailsByProductId(int productId)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+
+        public async Task<IActionResult> GetDetailsByProductId(int productId)
 		{
 			var details = await _storageRepo.GetDetailsByProductId(productId);
 			if (details == null)

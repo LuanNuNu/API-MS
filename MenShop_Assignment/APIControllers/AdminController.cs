@@ -37,6 +37,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPost("create-staff")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUserByAdmin(AccountRegister model)
         {
             var result = await _adminRepo.CreateUserByAdminAsync(model);
@@ -87,7 +88,7 @@ namespace MenShop_Assignment.APIControllers
             return StatusCode(result.StatusCode, result);
         }
         [HttpPut("update-profile")]
-        [Authorize(Roles = "Customer, Admin")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> UpdateOwnProfile([FromBody] CustomerUpdateDTO model)
         {
             var allClaims = User.Claims.Select(c => $"{c.Type} = {c.Value}").ToList();
@@ -139,6 +140,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("users/me")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCurrentUserAsync()
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;

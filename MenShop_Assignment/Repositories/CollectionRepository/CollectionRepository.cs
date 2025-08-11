@@ -25,6 +25,24 @@ namespace MenShop_Assignment.Repositories.CollectionRepository
 
             return new ApiResponseModel<List<CollectionViewModel>>(true, "Lấy danh sách thành công", result, 200);
         }
+        public async Task<ApiResponseModel<CollectionViewModel?>> GetCurrentCollectionAsync()
+        {
+            var now = DateTime.Now;
+
+            var collection = await _context.Collections
+                .Where(c => c.Status == true
+                            && c.StartTime <= now
+                            && c.EndTime >= now)
+                .OrderBy(c => c.StartTime) 
+                .FirstOrDefaultAsync();
+
+            if (collection == null)
+            {
+                return new ApiResponseModel<CollectionViewModel?>(false, "Không có bộ sưu tập hiện tại", null, 404);
+            }
+
+            return new ApiResponseModel<CollectionViewModel?>(true, "Thành công", CollectionMapper.ToCollectionViewModel(collection), 200);
+        }
 
         public async Task<ApiResponseModel<CollectionViewModel?>> GetByIdCollection(int collectionId)
         {
@@ -106,17 +124,10 @@ namespace MenShop_Assignment.Repositories.CollectionRepository
             var details = await _context.CollectionDetails
                 .Include(cd => cd.Product)
                     .ThenInclude(p => p.ProductDetails)
-                        .ThenInclude(pd => pd.Color)
-                .Include(cd => cd.Product)
-                    .ThenInclude(p => p.ProductDetails)
-                        .ThenInclude(pd => pd.Size)
-                .Include(cd => cd.Product)
-                    .ThenInclude(p => p.ProductDetails)
-                        .ThenInclude(pd => pd.Fabric)
                 .Where(cd => cd.CollectionId == collectionId)
                 .ToListAsync();
 
-            var result = details.Select(CollectionMapper.ToProductColectionViewModel).ToList();
+            var result = details.Select(CollectionMapper.ToProductCollectionViewModel).ToList();
             return new ApiResponseModel<List<CollectionDetailsViewModel>>(true, "Lấy dữ liệu hành công", result, 200);
         }
 

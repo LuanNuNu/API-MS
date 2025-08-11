@@ -3,20 +3,21 @@ using MenShop_Assignment.Mapper;
 using MenShop_Assignment.Models.Account;
 using MenShop_Assignment.Models.Momo;
 using MenShop_Assignment.Services;
+using MenShop_Assignment.Services.Email;
 using MenShop_Assignment.Services.Momo;
 using MenShop_Assignment.Services.PaymentServices;
+using MenShop_Assignment.Services.Token;
 using MenShop_Assignment.Services.VNPay;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Security.Claims;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
-using MenShop_Assignment.Services.Token;
+using System.Security.Claims;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -79,7 +80,7 @@ builder.Services.AddScoped<IMomoServices, MomoServices>();
 builder.Services.AddScoped<IVNPayService, VNPayService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 builder.Services.AddControllers()

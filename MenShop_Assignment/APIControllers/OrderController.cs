@@ -5,6 +5,7 @@ using MenShop_Assignment.Extensions;
 using MenShop_Assignment.Models;
 using MenShop_Assignment.Repositories.OrderRepository;
 using MenShop_Assignment.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -23,18 +24,21 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("getall-orders")]
+        [Authorize]
         public async Task<IActionResult> GetAllOrders()
         {
             var result = _orderRepository.GetOrdersAsync(null).Result.ToList();
             return Ok(result);
         }
         [HttpGet("getall-onlineorders")]
+        [Authorize]
         public async Task<IActionResult> GetAllOnlineOrders()
         {
             var onlineOrders =  _orderRepository.GetOrdersAsync(new SearchOrderDTO { IsOnline= true}).Result.ToList();
             return Ok(onlineOrders);
         }
         [HttpGet("get-ordersId/{orderId}")]
+        [Authorize]
         public async Task<IActionResult> GetOrderById(string orderId)
         {
             var orders = await _orderRepository.GetOrdersAsync(new SearchOrderDTO { OrderId = orderId });
@@ -47,6 +51,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpGet("get-orders/{shipperId}")]
+        [Authorize]
         public async Task<IActionResult> GetOrdersByShipperId(string shipperId)
         {
             var result =  _orderRepository.GetOrdersAsync(new SearchOrderDTO { ShipperId = shipperId}).Result.ToList();
@@ -54,6 +59,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("getorders-by-district")]
+        [Authorize]
         public async Task<ActionResult<ApiResponseModel<List<OrderViewModel>>>> GetOrdersByDistrict(string district)
         {
             try
@@ -85,6 +91,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpPut("auto-approve/{orderId}")]
+        [Authorize]
         public async Task<IActionResult> AutoApprove(string orderId)
         {
             var result = await _orderService.ApproveOnlineOrderAsync(orderId);
@@ -95,6 +102,7 @@ namespace MenShop_Assignment.APIControllers
                 return BadRequest(result);
         }
         [HttpPut("auto-decrease-stock/{orderId}")]
+        [Authorize]
         public async Task<IActionResult> AutoDecreaseStockOffline(string orderId)
         {
             var result = await _orderService.ApproveOfflineOrderAsync(orderId);
@@ -106,6 +114,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("pending")]
+        [Authorize]
         public async Task<IActionResult> GetPending()
         {
             var result = await _orderRepository.GetOrdersAsync(
@@ -121,7 +130,8 @@ namespace MenShop_Assignment.APIControllers
         //Order for Customer 
 
         [HttpGet("get-order-by-customerId")]
-		public async Task<ActionResult> GetOrdersByCustomerId(string? customerId)
+        [Authorize]
+        public async Task<ActionResult> GetOrdersByCustomerId(string? customerId)
 		{
 			try
 			{
@@ -136,6 +146,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
         [HttpGet("get-order-detail/{orderId}")]
+        [Authorize]
         public async Task<ActionResult> GetOrderDetailById(string orderId)
         {
             try
@@ -159,13 +170,15 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpGet("search")]
-		public async Task<ActionResult> SearchOrders([FromBody] SearchOrderDTO? searchDto)
+        [Authorize]
+        public async Task<ActionResult> SearchOrders([FromBody] SearchOrderDTO? searchDto)
 		{
             var orderList = _orderRepository.GetOrdersAsync(searchDto).Result;
 			return Ok(orderList);
 		}
 
         [HttpPut("cancel/{orderId}")]
+        [Authorize]
         public async Task<IActionResult> CancelOrder(string orderId, string reason)
         {
             if (string.IsNullOrWhiteSpace(orderId))
@@ -184,6 +197,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPut("complete/{orderId}")]
+        [Authorize]
         public async Task<ActionResult<ApiResponseModel<object>>> CompleteOrder(string orderId)
         {
             try
@@ -213,12 +227,14 @@ namespace MenShop_Assignment.APIControllers
             }
         }
         [HttpPut("updateOrder-shipperStatus")]
+        [Authorize]
         public async Task<IActionResult> ShipperAcceptOrder([FromQuery] string orderId, [FromQuery] string shipperId)
         {
             var result = await _orderRepository.ShipperAcceptOrderByOrderId(orderId, shipperId);
             return StatusCode(result.StatusCode, result);
         }
         [HttpPost("createOrder")]
+        [Authorize]
         public async Task<ActionResult<OrderResponseDTO>> CreateOrderAsync([FromBody] CreateOrderDTO createOrderDto)
         {
             if (createOrderDto == null)

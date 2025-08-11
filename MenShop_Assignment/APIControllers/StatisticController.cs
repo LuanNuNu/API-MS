@@ -2,6 +2,7 @@
 using MenShop_Assignment.Models.Statistics;
 using MenShop_Assignment.Repositories;
 using MenShop_Assignment.Repositories.StatisticRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,8 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("dynamic")]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager, BranchManager")]
+
         public async Task<IActionResult> GetDynamicStatistics(
             [FromQuery] StatisticMode mode,
             [FromQuery] int? year,
@@ -54,6 +57,8 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("top-products")]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager, BranchManager")]
+
         public async Task<IActionResult> GetTopProducts([FromQuery] int top = 10)
         {
             var result = await _repository.GetTopBestSellingProductsAsync(top);
@@ -63,6 +68,8 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("top-customers")]
+        [Authorize(Roles = "Admin, RevenueManager, WarehouseManager, BranchManager")]
+
         public async Task<IActionResult> GetTopCustomers([FromQuery] int top = 10)
         {
             var result = await _repository.GetTopCustomersAsync(top);
@@ -70,6 +77,32 @@ namespace MenShop_Assignment.APIControllers
                 return BadRequest(result);
             return Ok(result);
         }
+
+        [HttpGet("top-best-selling-products-by-day")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTopBestSellingProductsByDay(
+      [FromQuery] DateTime? date = null,
+      [FromQuery] int top = 10,
+      [FromQuery] int? branchId = null)
+        {
+            var result = await _repository.GetTopBestSellingProductsByDayAsync(date, top, branchId);
+            if (!result.IsSuccess)
+                return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpGet("total-orders-by-day")]
+        [Authorize(Roles = "Admin, RevenueManager, WarehouseManager, BranchManager")]
+        public async Task<IActionResult> GetTotalOrdersByDay(
+            [FromQuery] DateTime? date = null,
+            [FromQuery] int? branchId = null)
+        {
+            var result = await _repository.GetTotalOrdersByDayAsync(date, branchId);
+            if (!result.IsSuccess)
+                return BadRequest(result);
+            return Ok(result);
+        }
+
     }
 
 

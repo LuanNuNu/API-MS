@@ -1,6 +1,7 @@
 ﻿using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Models;
 using MenShop_Assignment.Repositories.CustomerAddressRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MenShop_Assignment.APIControllers
@@ -17,6 +18,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet]
+		[Authorize]
 		public async Task<IActionResult> GetAll()
 		{
 			var addresses = await _addressRepo.GetAllAsync();
@@ -24,6 +26,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet("customer/{customerId}")]
+		[Authorize]
 		public async Task<IActionResult> GetByCustomerId(string customerId)
 		{
 			var addresses = await _addressRepo.GetByCustomerIdAsync(customerId);
@@ -31,6 +34,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPost]
+		[Authorize]
 		public async Task<IActionResult> Create([FromBody] CreateUpdateCustomerAddressDTO dto)
 		{
 			var success = await _addressRepo.CreateAsync(dto);
@@ -41,6 +45,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateUpdateCustomerAddressDTO dto)
         {
             var success = await _addressRepo.UpdateAsync(id, dto); 
@@ -52,7 +57,8 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpDelete("{id}")]
-		public async Task<IActionResult> Delete(int id)
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> Delete(int id)
 		{
 			var success = await _addressRepo.DeleteAsync(id);
 			if (!success)

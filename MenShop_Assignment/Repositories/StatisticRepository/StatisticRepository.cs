@@ -139,6 +139,94 @@ namespace MenShop_Assignment.Repositories.StatisticRepository
             }
         }
 
+        public async Task<ApiResponseModel<List<object>>> GetTopBestSellingProductsByDayAsync(DateTime? date = null, int top = 10, int? branchId = null)
+        {
+            try
+            {
+                var targetDate = date?.Date ?? DateTime.Today;
+                var startDate = targetDate;
+                var endDate = startDate.AddDays(1);
+
+                var query = _context.OrderDetails
+                    .Where(od => od.Order != null
+                                 && od.Order.Status == OrderStatus.Completed
+                                 && od.Order.CreatedDate >= startDate
+                                 && od.Order.CreatedDate < endDate);
+
+                if (branchId.HasValue)
+                {
+                    var branch = await _context.Branches.FindAsync(branchId.Value);
+                    if (branch != null && branch.IsOnline)
+                    {
+                        query = query.Where(od =>  od.Order.IsOnline == true);
+
+                    }
+                    else
+                    {
+                        query = query.Where(od => od.Order.BranchId == branchId.Value);
+                    }
+                }
+
+                var topProducts = await query
+                    .GroupBy(od => new { od.ProductDetailId, od.ProductDetail!.Product!.ProductName, od.ProductDetail!.Product!.ProductId })
+                    .Select(g => new
+                    {
+                        ProductId = g.Key.ProductId,
+                        ProductDetailId = g.Key.ProductDetailId,
+                        ProductName = g.Key.ProductName,
+                        TotalQuantity = g.Sum(x => x.Quantity ?? 0)
+                    })
+                    .OrderByDescending(x => x.TotalQuantity)
+                    .Take(top)
+                    .ToListAsync();
+
+                return new ApiResponseModel<List<object>>(true, "Lấy danh sách sản phẩm bán chạy trong ngày thành công", topProducts.Cast<object>().ToList(), 200);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponseModel<List<object>>(false, "Đã xảy ra lỗi: " + ex.Message, null, 500);
+            }
+        }
+
+
+        public async Task<ApiResponseModel<int>> GetTotalOrdersByDayAsync(DateTime? date = null, int? branchId = null)
+        {
+            try
+            {
+                var targetDate = date?.Date ?? DateTime.Today;
+                var startDate = targetDate;
+                var endDate = startDate.AddDays(1);
+
+                var query = _context.Orders
+                    .Where(o => o.Status == OrderStatus.Completed
+                                && o.CreatedDate >= startDate
+                                && o.CreatedDate < endDate);
+
+                if (branchId.HasValue)
+                {
+                    var branch = await _context.Branches.FindAsync(branchId.Value);
+                    if (branch != null && branch.IsOnline)
+                    {
+                        query = query.Where(o => o.Branch == null && o.IsOnline == true);
+                    }
+                    else
+                    {
+                        query = query.Where(o => o.BranchId == branchId.Value);
+                    }
+                }
+
+                var totalOrders = await query.CountAsync();
+
+                return new ApiResponseModel<int>(true, "Lấy tổng số đơn hàng trong ngày thành công", totalOrders, 200);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponseModel<int>(false, "Đã xảy ra lỗi: " + ex.Message, 0, 500);
+            }
+        }
+
+
+
 
     }
 }

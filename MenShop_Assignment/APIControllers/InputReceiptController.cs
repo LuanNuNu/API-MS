@@ -4,6 +4,7 @@ using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Models;
 using MenShop_Assignment.Repositories.InputReceiptRepositories;
 using MenShop_Assignment.Repositories.InputReceiptRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,7 @@ namespace MenShop_Assignment.APIControllers
             _receiptRepository = receiptRepository;
         }
         [HttpGet]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
         public async Task<IActionResult> GetAll()
         {
             var receipts = await _receiptRepository.GetInputReceipts();
@@ -26,6 +28,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
         public async Task<IActionResult> GetById(int id)
         {
             var receiptDetails = await _receiptRepository.GetByIdAsync(id);
@@ -36,6 +39,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPut("confirm/{id}")]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
         public async Task<IActionResult> Confirm(int id)
         {
             var result = await _receiptRepository.ConfirmReceipt(id);
@@ -44,6 +48,7 @@ namespace MenShop_Assignment.APIControllers
             return Ok(new ApiResponseModel<object>(true, "Xác nhận phiếu nhập thành công", null, 200));
         }
         [HttpPost("create")]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
         public async Task<IActionResult> CreateReceipt(
             [FromBody] List<CreateReceiptDetailDTO> detailDTOs,
             [FromQuery] string ManagerId)
@@ -85,6 +90,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPut("cancel/{id}")]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
         public async Task<IActionResult> Cancel(int id)
         {
             var result = await _receiptRepository.CancelReceipt(id);

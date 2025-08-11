@@ -1,8 +1,9 @@
-﻿using System.Net;
+﻿using MenShop_Assignment.Services.Email;
+using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 
-public class EmailService
+public class EmailService : IEmailService
 {
     private readonly string _fromEmail = "vandang3082006@gmail.com";
     private readonly string _appPassword = "kinuxsxjlqssheus";

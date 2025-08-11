@@ -2,6 +2,7 @@
 using MenShop_Assignment.Repositories.ForgotPasswordRepository;
 using MenShop_Assignment.DTOs.ForgotPassword;
 using MenShop_Assignment.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MenShop_Assignment.Controllers
 {
@@ -17,6 +18,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpPost("send-otp")]
+        [AllowAnonymous]
         public async Task<IActionResult> SendOtp([FromBody] string email)
         {
             var result = await _forgotRepo.SendOtpAsync(email);
@@ -24,6 +26,8 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpPost("verify-otp")]
+        [AllowAnonymous]
+
         public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequest model)
         {
             var result = await _forgotRepo.VerifyOtpAsync(model.SessionId, model.Otp);
@@ -31,6 +35,8 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpPost("reset-password")]
+        [AllowAnonymous]
+
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
         {
             var result = await _forgotRepo.ResetPasswordAsync(model.SessionId, model.NewPassword);

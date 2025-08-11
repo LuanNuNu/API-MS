@@ -3,6 +3,7 @@ using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Models;
 using Microsoft.AspNetCore.Identity;
 using MenShop_Assignment.Services;
+using MenShop_Assignment.Services.Email;
 using MenShop_Assignment.Datas;
 
 namespace MenShop_Assignment.Repositories.ForgotPasswordRepository
@@ -10,10 +11,10 @@ namespace MenShop_Assignment.Repositories.ForgotPasswordRepository
     public class ForgotPasswordRepository : IForgotPasswordRepository
     {
         private readonly UserManager<User> _userManager;
-        private readonly EmailService _emailService;
+        private readonly IEmailService _emailService;
         private static ConcurrentDictionary<string, (string Email, string Otp, DateTime Expire, bool IsVerified)> _otpStore = new();
 
-        public ForgotPasswordRepository(UserManager<User> userManager, EmailService emailService)
+        public ForgotPasswordRepository(UserManager<User> userManager, IEmailService emailService)
         {
             _userManager = userManager;
             _emailService = emailService;

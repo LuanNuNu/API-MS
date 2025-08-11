@@ -3,6 +3,7 @@ using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Models;
 using MenShop_Assignment.Repositories.CollectionRepository;
 using MenShop_Assignment.Repositories.Product;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,13 +21,21 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var result = await _repo.GetAllCollection();
             return StatusCode(result.StatusCode, result);
         }
-
+        [HttpGet("get-current-collection")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetCurrentCollection()
+        {
+            var result = await _repo.GetCurrentCollectionAsync();
+            return StatusCode(result.StatusCode, result);
+        }
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Get(int id)
         {
             var result = await _repo.GetByIdCollection(id);
@@ -34,6 +43,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpPost("CreateCollection")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> AddCollection([FromBody] CollectionCreateDTO dto)
         {
             if (dto == null || string.IsNullOrWhiteSpace(dto.CollectionName) || dto.StartTime >= dto.EndTime)
@@ -55,6 +65,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpPut("update-collection/{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> UpdateCollection(int id, [FromBody] CollectionCreateDTO dto)
         {
             var updated = new Collection
@@ -72,6 +83,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpDelete("delete-collection/{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> DeleteCollection(int id)
         {
             var result = await _repo.DeleteCollection(id);
@@ -79,6 +91,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpGet("{collectionId}/details")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetDetails(int collectionId)
         {
             var result = await _repo.GetCollectionDetailsByCollectionId(collectionId);
@@ -86,6 +99,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpPost("add-details")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> AddDetail([FromBody] CollectionDetailCreateDTO dto)
         {
             var detail = new CollectionDetail
@@ -99,6 +113,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpPut("details/{detailId}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> UpdateDetail(int detailId, [FromBody] CollectionDetailCreateDTO dto)
         {
             var detail = new CollectionDetail
@@ -113,6 +128,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpDelete("details/{detailId}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> DeleteDetail(int detailId)
         {
             var result = await _repo.DeleteDetail(detailId);
@@ -120,6 +136,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpPut("{id}/status")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> UpdateStatus(int id)
         {
             var result = await _repo.UpdateCollectionStatus(id);
@@ -127,6 +144,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpPost("add-images/{collectionId}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> AddImages(int collectionId, [FromBody] List<string> imageUrls)
         {
             var result = await _repo.AddImagesToCollectionAsync(collectionId, imageUrls);
@@ -137,6 +155,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpDelete("collection/images/{imgId}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> DeleteImgProductDetail(int imgId)
         {
             try
@@ -151,6 +170,7 @@ namespace MenShop_Assignment.Controllers
         }
 
         [HttpGet("collection/get-images/{collectionId}")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetImgProductDetails(int collectionId)
         {
             var productImgDetails = await _repo.GetImgByCollectionIdAsync(collectionId);

@@ -1,6 +1,7 @@
 ﻿using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Models;
 using MenShop_Assignment.Repositories.Category;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MenShop_Assignment.APIControllers
@@ -17,6 +18,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetAll()
 		{
 			var categories = await _categoryRepo.GetAllCategoriesAsync();
@@ -27,7 +29,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetById(int id)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> GetById(int id)
 		{
 			var category = await _categoryRepo.GetCategoryByIdAsync(id);
 			if (category == null)
@@ -37,7 +40,9 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Create([FromBody] CreateUpdateCategoryDTO dto)
+        [Authorize(Roles = "Admin, RevenueManager")]
+
+        public async Task<IActionResult> Create([FromBody] CreateUpdateCategoryDTO dto)
 		{
 			var success = await _categoryRepo.CreateCategoryAsync(dto);
 			if (!success)
@@ -47,6 +52,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateUpdateCategoryDTO dto)
         {
             var currentCategory = await _categoryRepo.GetCategoryByIdAsync(id);
@@ -66,7 +72,8 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpDelete("{id}")]
-		public async Task<IActionResult> Delete(int id)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> Delete(int id)
 		{
 			var success = await _categoryRepo.RemoveCategoryAsync(id);
 			if (!success)

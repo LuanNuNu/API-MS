@@ -1,6 +1,7 @@
-﻿using MenShop_Assignment.Repositories.ColorRepository;
+﻿using MenShop_Assignment.Models;
+using MenShop_Assignment.Repositories.ColorRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MenShop_Assignment.Models;
 
 namespace MenShop_Assignment.APIControllers
 {
@@ -16,14 +17,16 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAll()
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> GetAll()
 		{
 			var colors = await _colorRepo.GetAllColor();
 			return Ok(new ApiResponseModel<List<ColorViewModel>>(true, "Lấy danh sách màu thành công", colors, 200));
 		}
 
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetById(int id)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> GetById(int id)
 		{
 			var color = await _colorRepo.GetByIdColor(id);
 			if (color == null)
@@ -33,7 +36,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Create([FromBody] string name)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> Create([FromBody] string name)
 		{
 			var result = await _colorRepo.CreateColor(name);
 			if (!result)
@@ -43,7 +47,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> Update(int id, [FromBody] string newName)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> Update(int id, [FromBody] string newName)
 		{
 			var result = await _colorRepo.UpdateColor(id, newName);
 			if (!result)
@@ -53,7 +58,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> Delete(int id)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> Delete(int id)
 		{
 			var result = await _colorRepo.DeleteColor(id);
 			if (!result)

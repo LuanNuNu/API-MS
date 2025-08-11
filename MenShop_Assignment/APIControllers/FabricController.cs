@@ -1,6 +1,7 @@
 ﻿using MenShop_Assignment.Repositories.FabricRepositories;
 using Microsoft.AspNetCore.Mvc;
 using MenShop_Assignment.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MenShop_Assignment.APIControllers
 {
@@ -16,6 +17,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetAll()
 		{
 			var fabrics = await _fabricRepo.GetAllFabric();
@@ -23,7 +25,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetById(int id)
+        [Authorize(Roles = "Admin, RevenueManager, Factory")]
+        public async Task<IActionResult> GetById(int id)
 		{
 			var fabric = await _fabricRepo.GetByIdFabric(id);
 			if (fabric == null)
@@ -33,7 +36,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Create([FromBody] string name)
+        [Authorize(Roles = "Admin, RevenueManager, Factory")]
+        public async Task<IActionResult> Create([FromBody] string name)
 		{
 			var result = await _fabricRepo.CreateFabric(name);
 			if (!result)
@@ -43,7 +47,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> Update(int id, [FromBody] string newName)
+        [Authorize(Roles = "Admin, RevenueManager, Factory")]
+        public async Task<IActionResult> Update(int id, [FromBody] string newName)
 		{
 			var result = await _fabricRepo.UpdateFabric(id, newName);
 			if (!result)
@@ -53,7 +58,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> Delete(int id)
+        [Authorize(Roles = "Admin, RevenueManager, Factory")]
+        public async Task<IActionResult> Delete(int id)
 		{
 			var result = await _fabricRepo.DeleteFabric(id);
 			if (!result)

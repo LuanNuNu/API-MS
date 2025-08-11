@@ -19,15 +19,16 @@ namespace MenShop_Assignment.APIControllers
 
 		// GET: api/Product
 		[HttpGet]
-        [Authorize(Roles = "Admin")]
-
+		[AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetAllProducts()
 		{
 			var products = await _productRepository.GetAllProductsAsync();
 			return Ok(products);
 		}
 		[HttpGet("productDetails/{productId}")]
-		public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetProductDetails(int productId)
+        [AllowAnonymous]
+
+        public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetProductDetails(int productId)
 		{
 			var productDetails = await _productRepository.GetProductDetailsByProductIdAsync(productId);
 			return Ok(productDetails);
@@ -35,13 +36,17 @@ namespace MenShop_Assignment.APIControllers
 
 		//up
 		[HttpGet("productDetails/images/{productDetailId}")]
-		public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetImgProductDetails(int productDetailId)
+        [AllowAnonymous]
+
+        public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetImgProductDetails(int productDetailId)
 		{
 			var productImgDetails = await _productRepository.GetImgByProductDetailIdAsync(productDetailId);
 			return Ok(productImgDetails);
 		}
 		[HttpGet("{id}")]
-		public async Task<ActionResult<ProductViewModel>> GetProductById(int id)
+        [AllowAnonymous]
+
+        public async Task<ActionResult<ProductViewModel>> GetProductById(int id)
 		{
 			var product = await _productRepository.GetProductByIdAsync(id);
 			if (product == null)
@@ -51,6 +56,8 @@ namespace MenShop_Assignment.APIControllers
 			return Ok(product);
 		}
         [HttpGet("category/{categoryId}")]
+        [AllowAnonymous]
+
         public async Task<ActionResult<List<ProductViewModel>>> GetProductsByCategoryId(int categoryId)
         {
             var products = await _productRepository.GetProductsByCategoryIdAsync(categoryId);
@@ -64,7 +71,8 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpPut("product/{id}")]
-		public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDTO dto)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDTO dto)
 		{
 			var result = await _productRepository.UpdateProductAsync(id, dto);
 			if (!result.IsSuccess)
@@ -73,7 +81,8 @@ namespace MenShop_Assignment.APIControllers
 			return Ok(result);
 		}
 		[HttpPut("product-detail")]
-		public async Task<IActionResult> UpdateProductDetail([FromBody] UpdateProductDetailDTO detailDto)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> UpdateProductDetail([FromBody] UpdateProductDetailDTO detailDto)
 		{
 			var result = await _productRepository.UpdateProductDetailsAsync(detailDto);
 			if (!result.IsSuccess)
@@ -82,7 +91,8 @@ namespace MenShop_Assignment.APIControllers
 			return Ok(result);
 		}
 		[HttpPut("product-detail/{detailId}/images")]
-		public async Task<IActionResult> UpdateProductDetailImages(int detailId, [FromBody] List<UpdateImageDTO> images)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> UpdateProductDetailImages(int detailId, [FromBody] List<UpdateImageDTO> images)
 		{
 			var result = await _productRepository.UpdateProductDetailImagesAsync(detailId, images);
 			if (!result.IsSuccess)
@@ -94,7 +104,8 @@ namespace MenShop_Assignment.APIControllers
 
 
 		[HttpPut("updateStatus/{productId}")]
-		public async Task<IActionResult> ToggleStatusProduct(int productId)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> ToggleStatusProduct(int productId)
 		{
 			var result = await _productRepository.UpdateProductStatusAsync(productId);
 			if (result)
@@ -106,7 +117,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpDelete("details/{detailId}")]
-		public async Task<IActionResult> DeleteProductDetail(int detailId)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> DeleteProductDetail(int detailId)
 		{
 			try
 			{
@@ -120,7 +132,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpDelete("{productId}")]
-		public async Task<IActionResult> DeleteProduct(int productId)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> DeleteProduct(int productId)
 		{
 			try
 			{
@@ -138,7 +151,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 		//up1
 		[HttpDelete("details/images/{imgId}")]
-		public async Task<IActionResult> DeleteImgProductDetail(int imgId)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> DeleteImgProductDetail(int imgId)
 		{
 			try
 			{
@@ -152,7 +166,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPost("create")]
-		public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO dto)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO dto)
 		{
 			var result = await _productRepository.CreateProductOnlyAsync(dto);
 			if (result.IsSuccess)
@@ -162,7 +177,8 @@ namespace MenShop_Assignment.APIControllers
 
 		//up2
 		[HttpPost("add-detail")]
-		public async Task<IActionResult> AddProductDetail([FromBody] AddProductDetailDTO dto)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> AddProductDetail([FromBody] AddProductDetailDTO dto)
 		{
 			var result = await _productRepository.AddProductDetailsAsync(dto);
 			if (!result.Results.Any(r => r.IsSuccess))
@@ -177,7 +193,8 @@ namespace MenShop_Assignment.APIControllers
 
 		//up
 		[HttpPost("add-images/{detailId}")]
-		public async Task<IActionResult> AddImages(int detailId, [FromBody] List<string> imageUrls)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> AddImages(int detailId, [FromBody] List<string> imageUrls)
 		{
 			var result = await _productRepository.AddImagesToDetailAsync(detailId, imageUrls);
 			if (result.Count == 0 || result.Any(r => !r.IsSuccess))

@@ -9,6 +9,7 @@ namespace MenShop_Assignment.Repositories.CollectionRepository
     {
         Task<ApiResponseModel<List<CollectionViewModel>>> GetAllCollection();
         Task<ApiResponseModel<CollectionViewModel?>> GetByIdCollection(int collectionId);
+        Task<ApiResponseModel<CollectionViewModel?>> GetCurrentCollectionAsync();
         Task<ApiResponseModel<bool>> AddCollection(Collection collection);
         Task<ApiResponseModel<bool>> UpdateCollection(Collection updatedCollection);
         Task<ApiResponseModel<bool>> DeleteCollection(int collectionId);

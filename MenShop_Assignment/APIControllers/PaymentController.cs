@@ -6,6 +6,7 @@ using MenShop_Assignment.Repositories.Product;
 using MenShop_Assignment.Services.Momo;
 using MenShop_Assignment.Services.PaymentServices;
 using MenShop_Assignment.Services.VNPay;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MenShop_Assignment.APIControllers
@@ -27,6 +28,7 @@ namespace MenShop_Assignment.APIControllers
 
         }
         [HttpPost("create-MomoPayment")]
+        [Authorize]
         public async Task<IActionResult> CreatePayment([FromBody] OrderInforDTO orderInfor)
         {
             if (orderInfor == null || orderInfor.Amount <= 0)
@@ -45,6 +47,7 @@ namespace MenShop_Assignment.APIControllers
             }
         }
         [HttpGet("by-order/{orderId}")]
+        [Authorize]
         public async Task<IActionResult> GetPaymentByOrderId(string orderId)
         {
             var result = await _paymentService.GetPaymentByOrderIdAsync(orderId);
@@ -55,6 +58,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("{paymentId}")]
+        [Authorize]
         public async Task<IActionResult> GetPaymentById(string paymentId)
         {
             var result = await _paymentService.GetPaymentByPaymentdAsync(paymentId);
@@ -77,6 +81,7 @@ namespace MenShop_Assignment.APIControllers
             }
         }
         [HttpPost("create-vnpay-payment")]
+        [Authorize]
         public async Task<ActionResult<VnPayUrlResponseModel>> CreatePaymentUrlVnpay([FromBody] VnPaymentRequestModel model)
         {
             try
@@ -104,6 +109,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpPost("{orderId}")]
+        [Authorize]
         public async Task<IActionResult> AddPaymentToOrder(string orderId, [FromBody] CreatePaymentDTO dto)
         {
             try
@@ -119,6 +125,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpGet("PaymentCallbackVnpay")]
+        [Authorize]
         public async Task<IActionResult> PaymentCallbackVnpay()
         {
             try

@@ -1,6 +1,7 @@
 ﻿using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Models;
 using MenShop_Assignment.Repositories.OutputReceiptRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
         public async Task<IActionResult> GetAll()
         {
             var receipts = await _outputReceiptRepository.GetOutputReceiptViews();
@@ -25,6 +27,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
         public async Task<IActionResult> GetById(int id)
         {
             var receipt = await _outputReceiptRepository.GetById(id);
@@ -34,6 +37,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("branch/{branchId}")]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager, BranchManager")]
         public async Task<IActionResult> GetByBranch(int branchId)
         {
             var receipts = await _outputReceiptRepository.GetByBranchId(branchId);
@@ -41,6 +45,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPost("create")]
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
         public async Task<IActionResult> Create(
             [FromBody] List<CreateReceiptDetailDTO> detailDTOs,
             [FromQuery] int branchId,
@@ -55,6 +60,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpPut("confirm/{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> Confirm(int id)
         {
             var result = await _outputReceiptRepository.ConfirmReceipt(id);
@@ -64,6 +70,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPut("cancel/{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> Cancel(int id)
         {
             var result = await _outputReceiptRepository.CancelReceipt(id);

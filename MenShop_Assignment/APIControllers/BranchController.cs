@@ -18,7 +18,8 @@ namespace MenShop_Assignment.APIControllers
 			_branchRepository = branchRepository;
 		}
 		[HttpGet("getbranches")]
-		public async Task<IActionResult> GetAllBranches()
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllBranches()
 		{
 			var branches = await _branchRepository.GetBranchesAsync();
 			if (branches == null)
@@ -27,7 +28,9 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet("getbranch/{id}")]
-		public async Task<IActionResult> GetBranchById(int id)
+        [AllowAnonymous]
+
+        public async Task<IActionResult> GetBranchById(int id)
 		{
 			var branch = await _branchRepository.GetBranchByIdAsync(id);
 			if (branch == null)
@@ -36,7 +39,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPost("create")]
-		public async Task<IActionResult> CreateBranch([FromBody] CreateUpdateBranchDTO dto)
+        [Authorize(Roles = "Admin, RevenueManager")]
+        public async Task<IActionResult> CreateBranch([FromBody] CreateUpdateBranchDTO dto)
 		{
 			var branch = await _branchRepository.CreateBranchAsync(dto);
 			if (branch == null)
@@ -46,6 +50,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
         [HttpPut("{branchId}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> UpdateBranch(int branchId, [FromBody] CreateUpdateBranchDTO dto)
         {
             var branch = await _branchRepository.UpdateBranchAsync(branchId,dto);
@@ -87,6 +92,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("productDetails/{productDetailId}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProductDetail([FromQuery] int branchId, int productDetailId)
         {
             if (productDetailId <= 0)
@@ -103,6 +109,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("{branchId}/search")]
+        [AllowAnonymous]
         public async Task<IActionResult> SearchProductInBranch(int branchId, [FromQuery] string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
@@ -117,6 +124,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpDelete("delete/{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> DeleteBranch(int id)
         {
             try

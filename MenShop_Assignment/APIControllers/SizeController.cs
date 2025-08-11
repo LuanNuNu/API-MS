@@ -1,5 +1,6 @@
 ﻿using MenShop_Assignment.Models;
 using MenShop_Assignment.Repositories.SizeRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MenShop_Assignment.APIControllers
@@ -16,14 +17,16 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAll()
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> GetAll()
 		{
 			var sizes = await _sizeRepo.GetAllSize();
 			return Ok(new ApiResponseModel<List<SizeViewModel>>(true, "Lấy danh sách size thành công", sizes, 200));
 		}
 
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetById(int id)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> GetById(int id)
 		{
 			var size = await _sizeRepo.GetByIdSize(id);
 			if (size == null)
@@ -32,7 +35,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> Create([FromBody] string name)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> Create([FromBody] string name)
 		{
 			var result = await _sizeRepo.CreateSize(name);
 			if (!result)
@@ -41,7 +45,8 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> Update(int id, [FromBody] string name)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+        public async Task<IActionResult> Update(int id, [FromBody] string name)
 		{
 			var result = await _sizeRepo.UpdateSize(id, name);
 			if (!result)
@@ -50,7 +55,9 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<IActionResult> Delete(int id)
+        [Authorize(Roles = "Admin, RevenueManager, Factory, WarehouseManager")]
+
+        public async Task<IActionResult> Delete(int id)
 		{
 			var result = await _sizeRepo.DeleteSize(id);
 			if (!result)

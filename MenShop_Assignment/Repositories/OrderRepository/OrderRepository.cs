@@ -349,6 +349,34 @@ namespace MenShop_Assignment.Repositories.OrderRepository
         public async Task<OrderResponseDTO> CreateOrderAsync(CreateOrderDTO createOrderDTO)
         {
             var productDetailIds = createOrderDTO.Details.Select(d => d.ProductDetailId).ToList();
+
+            var branchDetails = await _context.BranchDetails
+                .Where(d => productDetailIds.Contains(d.ProductDetailId) && d.BranchId == createOrderDTO.BranchId)
+                .ToListAsync();
+
+            foreach (var orderDetail in createOrderDTO.Details)
+            {
+                var branchDetail = branchDetails.FirstOrDefault(d => d.ProductDetailId == orderDetail.ProductDetailId);
+                if (branchDetail == null)
+                {
+                    return new OrderResponseDTO
+                    {
+                        IsSuccess = false,
+                        Message = $"Sản phẩm mã {branchDetail.ProductDetailId} dã hết hàng! Xin lỗi quý khách vì sự bất tiện này."
+                    };
+                }
+
+                if (branchDetail.Quantity == 0 || orderDetail.Quantity > branchDetail.Quantity)
+                {
+                    return new OrderResponseDTO
+                    {
+                        IsSuccess = false,
+                        Message = $"Số lượng sản phẩm hiện còn {branchDetail.Quantity} trong kho, không đủ để đặt hàng. Vui lòng thử lại!"
+                    };
+                }
+            }
+
+
             var orderDetails = createOrderDTO.Details.Select(d => new OrderDetail
             {
                 ProductDetailId = d.ProductDetailId,
@@ -378,9 +406,17 @@ namespace MenShop_Assignment.Repositories.OrderRepository
             };
 
             _context.Orders.Add(order);
+
+            foreach (var od in orderDetails)
+            {
+                var bd = branchDetails.First(d => d.ProductDetailId == od.ProductDetailId);
+                bd.Quantity -= od.Quantity;
+                if (bd.Quantity < 0)
+                    bd.Quantity = 0; 
+            }
+
             await _context.SaveChangesAsync();
 
-            // Xoá sản phẩm khỏi giỏ hàng
             var cart = await _context.Carts.Include(c => c.Details)
                                            .FirstOrDefaultAsync(c => c.CustomerId == createOrderDTO.CustomerId);
 
@@ -404,5 +440,6 @@ namespace MenShop_Assignment.Repositories.OrderRepository
                 Message = "Tạo đơn hàng thành công"
             };
         }
+
     }
 }

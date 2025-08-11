@@ -21,25 +21,20 @@ namespace MenShop_Assignment.Mapper
             };
         }
 
-        public static CollectionDetailsViewModel ToProductColectionViewModel(CollectionDetail collectionDetail)
+        public static CollectionDetailsViewModel ToProductCollectionViewModel(CollectionDetail c)
         {
             return new CollectionDetailsViewModel
             {
-                CollectionDetailId = collectionDetail.CollectionDetailId,
-                CollectionId = collectionDetail.CollectionId,
-                ProductId = collectionDetail.ProductId,
-                ProductName = collectionDetail.Product?.ProductName,
-                ProductDetails = collectionDetail.Product?.ProductDetails?
-                    .Select(pd => new ProductDetailViewModel
-                    {
-                        DetailId = pd.DetailId,
-                        ProductName = pd.Product?.ProductName,
-                        ColorName = pd.Color?.Name,
-                        SizeName = pd.Size?.Name,
-                        FabricName = pd.Fabric?.Name
-                    }).ToList() ?? new()
+                CollectionDetailId = c.CollectionDetailId,
+                CollectionId = c.CollectionId,
+                ProductId = c.ProductId,
+                ProductName = c.Product?.ProductName,
+                ProductDetails = c.Product?.ProductDetails?
+                    .Select(pd => new ProductDetailViewModel { DetailId = pd.DetailId })
+                    .ToList() ?? new()
             };
         }
+
 
         public static ImageCollectionViewModel ToImageViewModel(ImageCollection img)
         {

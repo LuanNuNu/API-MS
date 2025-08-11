@@ -2,6 +2,7 @@
 using MenShop_Assignment.DTOs;
 using MenShop_Assignment.Models;
 using MenShop_Assignment.Repositories.DiscountPriceRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MenShop_Assignment.APIControllers
@@ -18,6 +19,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllDiscount()
         {
             var result = await _repo.GetAllDiscountPrice();
@@ -25,6 +27,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
             if (id <= 0)
@@ -37,6 +40,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("detail/{discountId}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllDetailDiscount(int discountId)
         {
             if (discountId <= 0)
@@ -49,6 +53,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> CreateDiscount([FromBody] CreateDiscountPriceDTO discount)
         {
             if (discount == null ||
@@ -65,6 +70,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> UpdateDiscount(int id, [FromBody] CreateDiscountPriceDTO discount)
         {
             if (id <= 0 || discount == null)
@@ -78,6 +84,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> DeleteDiscount(int id)
         {
             var result = await _repo.DeleteDiscount(id);
@@ -87,6 +94,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpPost("detail")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> CreateDiscountDetail([FromBody] CreateDiscountDetailDTO dto)
         {
             if (dto == null || dto.discountPriceId <= 0 || dto.productDetailIds == null || !dto.productDetailIds.Any())
@@ -106,6 +114,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpPut("detail/{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> UpdateDiscountDetail(int id, [FromBody] UpdateDiscountDetailDTO detail)
         {
             if (id <= 0 || detail == null)
@@ -119,6 +128,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpDelete("detail/{id}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> DeleteDiscountDetail(int id)
         {
             var result = await _repo.DeleteDiscountDetail(id);
@@ -129,6 +139,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpPut("updateStatus/{discountId}")]
+        [Authorize(Roles = "Admin, RevenueManager")]
         public async Task<IActionResult> ToggleStatusDiscount(int discountId)
         {
             var success = await _repo.UpdateDiscountStatusAsync(discountId);

@@ -20,6 +20,7 @@ namespace MenShop_Assignment.APIControllers
         }
 
         [HttpGet("getcart")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCart([FromQuery] string? customerId, [FromQuery] string? anonymousId)
         {
             if (string.IsNullOrEmpty(customerId) && string.IsNullOrEmpty(anonymousId))
@@ -50,6 +51,7 @@ namespace MenShop_Assignment.APIControllers
 
 
         [HttpPost("add")]
+        [AllowAnonymous]
 		public async Task<IActionResult> AddToCart([FromBody] CartActionDTO dto)
 		{
 			if (dto == null || dto.ProductDetailId == 0 || dto.Quantity <= 0 || string.IsNullOrEmpty(dto.CustomerId) && string.IsNullOrEmpty(dto.AnonymousId))
@@ -62,6 +64,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpPut("update")]
+        [AllowAnonymous]
 		public async Task<IActionResult> UpdateQuantity([FromBody] CartActionDTO dto)
 		{
 			if (dto.Quantity < 1)
@@ -75,6 +78,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
 		[HttpDelete("remove")]
+        [AllowAnonymous]
 		public async Task<IActionResult> RemoveFromCart([FromBody] CartActionDTO dto)
 		{
 			var reponse = await _cartRepository.RemoveFromCartAsync(dto.CustomerId, dto.AnonymousId,dto.ProductDetailId);
@@ -85,6 +89,7 @@ namespace MenShop_Assignment.APIControllers
 		}
 
         [HttpPost("merge-cart")]
+        [AllowAnonymous]
         public async Task<IActionResult> MergeCart([FromBody] MergeCartRequestDTO request)
         {
             if (string.IsNullOrEmpty(request.CustomerId) || string.IsNullOrEmpty(request.AnonymousId))
